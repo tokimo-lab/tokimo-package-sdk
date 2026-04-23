@@ -188,6 +188,13 @@ export interface MediaSessionSource {
   currentIndex: number;
   skipToIndex?: (index: number) => void;
   removeFromQueue?: (index: number) => void;
+  /**
+   * Returns the current playback state for persistence. Host's media center
+   * (single write authority) calls this when notifySaveNeeded fires. Shape
+   * must match host PlaybackStateData["music"]; we keep it `unknown` here to
+   * avoid coupling the SDK to host internals.
+   */
+  buildPersistState?: () => unknown;
 }
 
 // ── Menubar ──────────────────────────────────────────────────────────────────
