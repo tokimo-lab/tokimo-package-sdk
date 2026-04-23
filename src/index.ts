@@ -218,7 +218,11 @@ export interface MenuBarSearchConfig {
   appId: string;
   searchType: "movie" | "tv" | "book" | "photo" | "music";
   placeholder?: string;
-  onSelect: (item: { id: string; title: string; [key: string]: unknown }) => void;
+  onSelect: (item: {
+    id: string;
+    title: string;
+    [key: string]: unknown;
+  }) => void;
   recentItems?: Array<{
     id: string;
     title: string;
@@ -243,7 +247,11 @@ export interface ShellMenuBarApi {
 export type ToastLevel = "info" | "success" | "warning" | "error";
 
 export interface ShellToastApi {
-  show: (level: ToastLevel, message: string, opts?: { duration?: number }) => void;
+  show: (
+    level: ToastLevel,
+    message: string,
+    opts?: { duration?: number },
+  ) => void;
   info: (message: string, opts?: { duration?: number }) => void;
   success: (message: string, opts?: { duration?: number }) => void;
   warning: (message: string, opts?: { duration?: number }) => void;
@@ -328,7 +336,10 @@ export type ShellInjections = Omit<ShellApi, "notify">;
  * 给 shell adapter 用：传入由 shell 注入的有状态能力（media / menubar / toast / windowNav），
  * SDK 自行包装 notify（无状态 fetch /api/apps/notification_center/notify）。
  */
-export function makeShellApi(appId: string, injections: ShellInjections): ShellApi {
+export function makeShellApi(
+  appId: string,
+  injections: ShellInjections,
+): ShellApi {
   return {
     notify: (input) => postNotify(input, appId),
     media: injections.media,

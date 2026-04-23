@@ -35,10 +35,7 @@ export function useShellMedia(ctx: AppRuntimeCtx): UseShellMediaResult {
     () => media.getSnapshot(),
     () => media.getSnapshot(),
   );
-  return useMemo(
-    () => ({ ...media, snapshot }),
-    [media, snapshot],
-  );
+  return useMemo(() => ({ ...media, snapshot }), [media, snapshot]);
 }
 
 // ── Media session (cross-app player registration) ───────────────────────────
@@ -55,13 +52,13 @@ export function useShellMediaSession(
   sourceRef.current = source;
   const id = source?.id;
 
+  // We deliberately key on `id` only — patches to the source object are
+  // applied via updateSession() below, not by re-registering.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: see comment above
   useEffect(() => {
     if (!sourceRef.current) return;
     const dispose = ctx.shell.media.registerSession(sourceRef.current);
     return dispose;
-    // We deliberately key on `id` only — patches to the source object are
-    // applied via updateSession() below, not by re-registering.
-    // biome-ignore lint/correctness/useExhaustiveDependencies: see comment above
   }, [ctx.shell.media, id]);
 
   // Patch metadata when source mutates (without unregistering).
