@@ -1,7 +1,7 @@
 {
   "name": "@tokimo/sdk",
   "version": "0.1.0",
-  "description": "SDK for third-party Tokimo apps: defineApp + bus call helpers + shell context.",
+  "description": "SDK for third-party Tokimo apps: shell context, React hooks, and viewer exports.",
   "license": "MIT",
   "type": "module",
   "main": "src/index.ts",
@@ -11,10 +11,18 @@
   ],
   "exports": {
     ".": "./src/index.ts",
-    "./react": "./src/react-hooks.ts"
+    "./react": "./src/react-hooks.ts",
+    "./viewers": "./src/viewers/index.ts"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@tokimo/viewers": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
+  }
 }

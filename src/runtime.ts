@@ -3,6 +3,7 @@ import type { ShellMediaApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
 import type { ShellToastApi } from "./toast";
+import type { ShellViewerApi } from "./viewer";
 import type { ShellWindowNavApi } from "./window-nav";
 
 export interface AppRuntimeCtx {
@@ -34,4 +35,6 @@ export interface ShellApi {
   windowNav: ShellWindowNavApi;
   /** 主题 / 标题栏风格快照 + 订阅（用于适配 macOS 红绿灯位置等）。 */
   appearance: ShellAppearanceApi;
+  /** Shell-owned file/content viewers. */
+  viewer: ShellViewerApi;
 }

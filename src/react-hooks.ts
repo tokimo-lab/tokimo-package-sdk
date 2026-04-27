@@ -18,6 +18,7 @@ import type {
   MusicPlaybackSnapshot,
   ShellMediaApi,
   ShellToastApi,
+  ShellViewerApi,
 } from "./index";
 
 // ── Media playback ──────────────────────────────────────────────────────────
@@ -145,6 +146,13 @@ export function useShellWindowNav(ctx: AppRuntimeCtx): UseShellWindowNavResult {
 /** Stable reference to the toast API (it's already a stable singleton). */
 export function useShellToast(ctx: AppRuntimeCtx): ShellToastApi {
   return ctx.shell.toast;
+}
+
+// ── Viewer ──────────────────────────────────────────────────────────────────
+
+/** Stable reference to the shell viewer API. */
+export function useShellViewer(ctx: AppRuntimeCtx): ShellViewerApi {
+  return ctx.shell.viewer;
 }
 
 // ── Appearance (theme / title-bar style) ────────────────────────────────────
