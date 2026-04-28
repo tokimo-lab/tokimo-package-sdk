@@ -21,8 +21,17 @@
   "dependencies": {
     "@tokimo/viewers": "workspace:*"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run"
+  },
   "devDependencies": {
+    "@biomejs/biome": "2.4.9",
     "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3"
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.2",
+    "vitest": "^4.0.0"
   }
 }

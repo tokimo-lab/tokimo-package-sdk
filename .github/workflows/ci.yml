@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Stub workspace-only dependencies so `pnpm install` can resolve
+      # `workspace:*` protocols without checking out external repos.
+      - name: Stub workspace dependencies
+        run: |
+          mkdir -p .stub/tokimo-viewers .stub/tokimo-ui
+          echo '{"name":"@tokimo/viewers","version":"0.0.0"}' > .stub/tokimo-viewers/package.json
+          echo '{"name":"@tokimo/ui","version":"0.0.0"}' > .stub/tokimo-ui/package.json
+          cat > pnpm-workspace.yaml << 'EOF'
+          packages:
+            - "."
+            - ".stub/*"
+          EOF
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+      - run: pnpm test
