@@ -42,6 +42,7 @@ describe("makeShellApi", () => {
     windowNav: {} as never,
     appearance: {} as never,
     viewer: {} as never,
+    openModalWindow: () => "",
   };
 
   it("returns object with shell API shape", () => {

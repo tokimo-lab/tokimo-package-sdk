@@ -20,6 +20,7 @@ export function makeShellApi(
     windowNav: injections.windowNav,
     appearance: injections.appearance,
     viewer: injections.viewer,
+    openModalWindow: injections.openModalWindow,
   };
 }
 

@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import type { ShellAppearanceApi } from "./appearance";
 import type { ShellMediaApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
@@ -5,6 +6,44 @@ import type { NotifyInput } from "./notify";
 import type { ShellToastApi } from "./toast";
 import type { ShellViewerApi } from "./viewer";
 import type { ShellWindowNavApi } from "./window-nav";
+
+/**
+ * Minimal window descriptor passed to a modal child window component.
+ *
+ * Mirrors the shell's `WindowState` shape, but kept tiny so apps don't
+ * have to depend on the shell's full window typings.
+ */
+export interface ShellWindowHandle {
+  id: string;
+  metadata: Record<string, unknown>;
+  /**
+   * Request the host to close this modal window. Safe to call multiple
+   * times; the host de-duplicates close requests.
+   */
+  close: () => void;
+}
+
+/**
+ * Parameters for `shell.openModalWindow`.
+ */
+export interface ShellModalWindowParams {
+  /**
+   * Lazy-loaded React component default-export. The component receives
+   * `{ win }: { win: ShellWindowHandle }` so it can read `win.metadata`
+   * for context (e.g. the entity it should edit).
+   */
+  component: () => Promise<{
+    default: ComponentType<{ win: ShellWindowHandle }>;
+  }>;
+  /** Window title shown in the title bar. */
+  title?: string;
+  /** Initial window width (default: 480). */
+  width?: number;
+  /** Initial window height (default: 640). */
+  height?: number;
+  /** Arbitrary metadata exposed on `win.metadata` inside the modal. */
+  metadata?: Record<string, unknown>;
+}
 
 export interface AppRuntimeCtx {
   windowId: string;
@@ -37,4 +76,10 @@ export interface ShellApi {
   appearance: ShellAppearanceApi;
   /** Shell-owned file/content viewers. */
   viewer: ShellViewerApi;
+  /**
+   * Open an ephemeral modal child window centered on this app's window.
+   * The parent (this app) is blocked until the modal is closed.
+   * Not persisted across reloads. Returns the new window's id.
+   */
+  openModalWindow: (params: ShellModalWindowParams) => string;
 }
