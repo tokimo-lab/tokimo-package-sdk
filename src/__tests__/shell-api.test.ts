@@ -40,6 +40,7 @@ describe("makeShellApi", () => {
     menubar: {} as never,
     toast: {} as never,
     windowNav: {} as never,
+    windowDrag: {} as never,
     appearance: {} as never,
     viewer: {} as never,
     openModalWindow: () => "",
@@ -53,6 +54,7 @@ describe("makeShellApi", () => {
     expect(api.menubar).toBe(injections.menubar);
     expect(api.toast).toBe(injections.toast);
     expect(api.windowNav).toBe(injections.windowNav);
+    expect(api.windowDrag).toBe(injections.windowDrag);
     expect(api.appearance).toBe(injections.appearance);
     expect(api.viewer).toBe(injections.viewer);
   });

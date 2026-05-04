@@ -5,6 +5,7 @@ import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
 import type { ShellToastApi } from "./toast";
 import type { ShellViewerApi } from "./viewer";
+import type { ShellWindowDragApi } from "./window-drag";
 import type { ShellWindowNavApi } from "./window-nav";
 
 /**
@@ -72,6 +73,8 @@ export interface ShellApi {
   toast: ShellToastApi;
   /** 窗口内导航（route / replace / goBack）。 */
   windowNav: ShellWindowNavApi;
+  /** Shell window drag state stream for apps that need to pause heavy work. */
+  windowDrag: ShellWindowDragApi;
   /** 主题 / 标题栏风格快照 + 订阅（用于适配 macOS 红绿灯位置等）。 */
   appearance: ShellAppearanceApi;
   /** Shell-owned file/content viewers. */

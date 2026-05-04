@@ -17,7 +17,8 @@
  * See docs/app/multi-process-architecture.md for the full design.
  *
  * 此文件仅作 barrel re-export；具体类型 / 实现按领域拆分到 ./manifest, ./runtime,
- * ./shell-api, ./media, ./menubar, ./toast, ./window-nav, ./viewer, ./notify。
+ * ./shell-api, ./media, ./menubar, ./toast, ./window-nav, ./window-drag,
+ * ./viewer, ./notify。
  * Embeddable viewer components are exposed from the explicit
  * `@tokimo/sdk/viewers` subpath to keep the root runtime contract lean.
  */
@@ -32,4 +33,5 @@ export * from "./runtime";
 export * from "./shell-api";
 export * from "./toast";
 export * from "./viewer";
+export * from "./window-drag";
 export * from "./window-nav";

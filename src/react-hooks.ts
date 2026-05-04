@@ -19,6 +19,7 @@ import type {
   ShellMediaApi,
   ShellToastApi,
   ShellViewerApi,
+  ShellWindowDragSnapshot,
 } from "./index";
 
 // ── Media playback ──────────────────────────────────────────────────────────
@@ -138,6 +139,19 @@ export function useShellWindowNav(ctx: AppRuntimeCtx): UseShellWindowNavResult {
       goBack: nav.goBack,
     }),
     [route, canGoBack, nav.navigate, nav.replace, nav.goBack],
+  );
+}
+
+// ── Window drag state ───────────────────────────────────────────────────────
+
+export function useShellWindowDrag(
+  ctx: AppRuntimeCtx,
+): ShellWindowDragSnapshot {
+  const drag = ctx.shell.windowDrag;
+  return useSyncExternalStore(
+    (cb) => drag.subscribe(cb),
+    () => drag.getSnapshot(),
+    () => drag.getSnapshot(),
   );
 }
 
