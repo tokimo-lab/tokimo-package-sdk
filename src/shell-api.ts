@@ -22,6 +22,7 @@ export function makeShellApi(
     appearance: injections.appearance,
     viewer: injections.viewer,
     openModalWindow: injections.openModalWindow,
+    pickFilePath: injections.pickFilePath,
   };
 }
 

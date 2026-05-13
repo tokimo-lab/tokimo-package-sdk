@@ -44,6 +44,7 @@ describe("makeShellApi", () => {
     appearance: {} as never,
     viewer: {} as never,
     openModalWindow: () => "",
+    pickFilePath: async () => null,
   };
 
   it("returns object with shell API shape", () => {
@@ -57,6 +58,7 @@ describe("makeShellApi", () => {
     expect(api.windowDrag).toBe(injections.windowDrag);
     expect(api.appearance).toBe(injections.appearance);
     expect(api.viewer).toBe(injections.viewer);
+    expect(api.pickFilePath).toBe(injections.pickFilePath);
   });
 
   it("notify is a function", () => {

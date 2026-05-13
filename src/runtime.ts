@@ -46,6 +46,21 @@ export interface ShellModalWindowParams {
   metadata?: Record<string, unknown>;
 }
 
+export interface ShellPickFilePathParams {
+  /** Initial path to open in the browser. Defaults to "/" or system home. */
+  initialPath?: string;
+  /** VFS source id when browsing a remote storage source. */
+  sourceId?: string;
+  /** Protocol prefix shown above the address bar (e.g. "smb://host/share"). */
+  protocolPrefix?: string;
+  /** Window title; host provides a sensible default if omitted. */
+  title?: string;
+  /** Initial window width (default: host decides). */
+  width?: number;
+  /** Initial window height (default: host decides). */
+  height?: number;
+}
+
 export interface AppRuntimeCtx {
   windowId: string;
   appId: string;
@@ -85,4 +100,9 @@ export interface ShellApi {
    * Not persisted across reloads. Returns the new window's id.
    */
   openModalWindow: (params: ShellModalWindowParams) => string;
+  /**
+   * Open the host's native directory picker centered on this app's window.
+   * Returns the selected absolute path. Resolves to `null` if the user cancels.
+   */
+  pickFilePath: (params?: ShellPickFilePathParams) => Promise<string | null>;
 }
