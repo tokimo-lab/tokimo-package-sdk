@@ -61,6 +61,27 @@ export interface ShellPickFilePathParams {
   height?: number;
 }
 
+export interface StorageSource {
+  id: string;
+  name: string;
+  type: string;
+  config: unknown;
+  sortOrder: number;
+}
+
+export interface StorageBinding {
+  sourceId: string;
+  sourceType: string;
+  sourceName: string;
+  sourceConfig: unknown;
+  path: string;
+}
+
+export interface ShellPickStorageBindingParams {
+  initial?: { sourceId?: string; path?: string };
+  title?: string;
+}
+
 export interface AppRuntimeCtx {
   windowId: string;
   appId: string;
@@ -105,4 +126,13 @@ export interface ShellApi {
    * Returns the selected absolute path. Resolves to `null` if the user cancels.
    */
   pickFilePath: (params?: ShellPickFilePathParams) => Promise<string | null>;
+  /** List all configured VFS storage sources. */
+  listStorageSources: () => Promise<StorageSource[]>;
+  /**
+   * Open the host's storage binding picker (source + path).
+   * Resolves to the selected binding, or `null` if the user cancels.
+   */
+  pickStorageBinding: (
+    params?: ShellPickStorageBindingParams,
+  ) => Promise<StorageBinding | null>;
 }

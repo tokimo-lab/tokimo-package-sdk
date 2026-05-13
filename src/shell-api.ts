@@ -23,6 +23,8 @@ export function makeShellApi(
     viewer: injections.viewer,
     openModalWindow: injections.openModalWindow,
     pickFilePath: injections.pickFilePath,
+    listStorageSources: injections.listStorageSources,
+    pickStorageBinding: injections.pickStorageBinding,
   };
 }
 
