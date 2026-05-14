@@ -45,6 +45,8 @@ describe("makeShellApi", () => {
     viewer: {} as never,
     openModalWindow: () => "",
     pickFilePath: async () => null,
+    listStorageSources: async () => [],
+    pickStorageBinding: async () => null,
   };
 
   it("returns object with shell API shape", () => {
