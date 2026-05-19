@@ -23,6 +23,7 @@
     "@tokimo/viewers": "workspace:*"
   },
   "scripts": {
+    "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome check --write .",

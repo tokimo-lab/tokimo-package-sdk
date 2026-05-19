@@ -9,6 +9,7 @@
 
 import {
   useShellAppearance,
+  useShellLocale,
   useShellMedia,
   useShellMediaSession,
   useShellMediaSessionSnapshot,
@@ -21,6 +22,7 @@ import {
 import { useRuntimeCtx, useShellApi } from "./runtime-provider";
 
 export const useAppearance = () => useShellAppearance(useRuntimeCtx());
+export const useLocale = () => useShellLocale(useRuntimeCtx());
 export const useMedia = () => useShellMedia(useRuntimeCtx());
 export const useMediaSessionSnapshot = () =>
   useShellMediaSessionSnapshot(useRuntimeCtx());

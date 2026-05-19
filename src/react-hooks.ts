@@ -8,7 +8,13 @@
  * These helpers depend on React but not React-DOM; bundlers should externalize
  * "react" so the host React instance is reused (mandatory for hook identity).
  */
-import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type {
   AppAppearanceSnapshot,
   AppRuntimeCtx,
@@ -21,6 +27,18 @@ import type {
   ShellViewerApi,
   ShellWindowDragSnapshot,
 } from "./index";
+
+// ── Locale ──────────────────────────────────────────────────────────────────
+
+export function useShellLocale(ctx: AppRuntimeCtx): string {
+  const [locale, setLocale] = useState(ctx.locale);
+
+  useEffect(() => {
+    return ctx.shell.subscribeLocale(setLocale);
+  }, [ctx.shell]);
+
+  return locale;
+}
 
 // ── Media playback ──────────────────────────────────────────────────────────
 //

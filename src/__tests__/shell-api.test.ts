@@ -52,6 +52,7 @@ describe("makeShellApi", () => {
     jobEvents: {} as never,
     bridge: {} as never,
     config: {} as never,
+    subscribeLocale: () => () => {},
   };
 
   it("returns object with shell API shape", () => {
@@ -66,6 +67,7 @@ describe("makeShellApi", () => {
     expect(api.appearance).toBe(injections.appearance);
     expect(api.viewer).toBe(injections.viewer);
     expect(api.pickFilePath).toBe(injections.pickFilePath);
+    expect(api.subscribeLocale).toBe(injections.subscribeLocale);
   });
 
   it("notify is a function", () => {

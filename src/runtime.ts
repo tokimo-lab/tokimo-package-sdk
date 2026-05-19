@@ -294,4 +294,15 @@ export interface ShellApi {
   bridge: ShellBridgeApi;
   /** Runtime knobs (e.g. optional rustBaseUrl escape hatch). */
   config: ShellConfig;
+  /**
+   * Subscribe to host locale changes. Handler is invoked with the new locale
+   * string (e.g. "zh-CN", "en-US") whenever the user switches language in host
+   * shell. Returns an unsubscribe function — app MUST call it on dispose to
+   * avoid leaks.
+   *
+   * Initial value is delivered via `ctx.locale` at mount time; this API is
+   * for follow-up changes only (host will NOT re-emit the current locale
+   * upon subscribe).
+   */
+  subscribeLocale: (handler: (locale: string) => void) => () => void;
 }

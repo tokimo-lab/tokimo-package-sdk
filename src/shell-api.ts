@@ -30,6 +30,7 @@ export function makeShellApi(
     jobEvents: injections.jobEvents,
     bridge: injections.bridge,
     config: injections.config,
+    subscribeLocale: injections.subscribeLocale,
   };
 }
 
