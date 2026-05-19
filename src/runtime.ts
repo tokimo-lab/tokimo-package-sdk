@@ -250,7 +250,19 @@ export interface AppRuntimeCtx {
 
 export interface ShellApi {
   notify: (input: NotifyInput) => Promise<void>;
-  getWindowContainer: (windowId: string) => HTMLElement | null;
+  /**
+   * Returns the DOM element that apps should portal content into.
+   *
+   * By default (`includeTitleBar` omitted or `false`) the container covers
+   * only the **window content area** (below the title bar).  Pass
+   * `{ includeTitleBar: true }` to obtain a container that covers the
+   * **entire window** including the title bar — useful for full-window
+   * overlays such as loading spinners or drag handles.
+   */
+  getWindowContainer: (
+    windowId: string,
+    options?: { includeTitleBar?: boolean },
+  ) => HTMLElement | null;
   /** 全局媒体引擎（CentralMusicEngine 的薄包装），跨 app 单例。 */
   media: ShellMediaApi;
   /** 顶部菜单栏注册（窗口聚焦时显示）。 */

@@ -36,7 +36,7 @@ describe("makeTranslator", () => {
 
 describe("makeShellApi", () => {
   const injections: ShellInjections = {
-    getWindowContainer: () => null,
+    getWindowContainer: (_windowId, _options) => null,
     media: {} as never,
     menubar: {} as never,
     toast: {} as never,
