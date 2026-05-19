@@ -53,6 +53,7 @@ describe("makeShellApi", () => {
     bridge: {} as never,
     config: {} as never,
     subscribeLocale: () => () => {},
+    player: {} as never,
   };
 
   it("returns object with shell API shape", () => {

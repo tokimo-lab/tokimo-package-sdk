@@ -305,4 +305,34 @@ export interface ShellApi {
    * upon subscribe).
    */
   subscribeLocale: (handler: (locale: string) => void) => () => void;
+  /** Host video player (PlayerProvider). */
+  player: {
+    play: (
+      file: unknown,
+      meta: {
+        title: string;
+        posterPath?: string | null;
+        videoItemId?: string;
+        episodeId?: string;
+        tvShowId?: string;
+        imdbId?: string | null;
+        tmdbId?: string | null;
+      },
+      options?: {
+        initialPosition?: number;
+        startPaused?: boolean;
+        watchHistoryId?: string;
+      },
+    ) => Promise<void>;
+    closePlayer: () => void;
+    /** Snapshot of currently playing item (null if nothing playing). */
+    getCurrentItem: () => {
+      fileId: string;
+      tvShowId?: string;
+      episodeId?: string;
+      videoItemId?: string;
+    } | null;
+    /** Subscribe to item changes; returns unsubscribe. */
+    subscribeItem: (listener: () => void) => () => void;
+  };
 }

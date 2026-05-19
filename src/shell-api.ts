@@ -31,6 +31,7 @@ export function makeShellApi(
     bridge: injections.bridge,
     config: injections.config,
     subscribeLocale: injections.subscribeLocale,
+    player: injections.player,
   };
 }
 
