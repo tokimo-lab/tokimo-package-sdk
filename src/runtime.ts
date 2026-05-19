@@ -250,6 +250,7 @@ export interface AppRuntimeCtx {
 
 export interface ShellApi {
   notify: (input: NotifyInput) => Promise<void>;
+  getWindowContainer: (windowId: string) => HTMLElement | null;
   /** 全局媒体引擎（CentralMusicEngine 的薄包装），跨 app 单例。 */
   media: ShellMediaApi;
   /** 顶部菜单栏注册（窗口聚焦时显示）。 */

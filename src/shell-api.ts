@@ -14,6 +14,7 @@ export function makeShellApi(
 ): ShellApi {
   return {
     notify: (input) => postNotify(input, appId),
+    getWindowContainer: injections.getWindowContainer,
     media: injections.media,
     menubar: injections.menubar,
     toast: injections.toast,

@@ -36,6 +36,7 @@ describe("makeTranslator", () => {
 
 describe("makeShellApi", () => {
   const injections: ShellInjections = {
+    getWindowContainer: () => null,
     media: {} as never,
     menubar: {} as never,
     toast: {} as never,
@@ -60,6 +61,7 @@ describe("makeShellApi", () => {
     const api = makeShellApi("test-app", injections);
     expect(api).toHaveProperty("notify");
     expect(api).toHaveProperty("media");
+    expect(api.getWindowContainer).toBe(injections.getWindowContainer);
     expect(api.media).toBe(injections.media);
     expect(api.menubar).toBe(injections.menubar);
     expect(api.toast).toBe(injections.toast);

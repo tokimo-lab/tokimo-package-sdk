@@ -46,4 +46,5 @@ export * from "./window-drag";
 export * from "./window-id";
 export * from "./window-manager";
 export * from "./window-nav";
+export * from "./window-portal";
 export * from "./ws";
