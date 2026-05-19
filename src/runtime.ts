@@ -3,6 +3,7 @@ import type { ShellAppearanceApi } from "./appearance";
 import type { ShellMediaApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
+import type { ReactiveSource } from "./reactive";
 import type { ShellToastApi } from "./toast";
 import type { ShellViewerApi } from "./viewer";
 import type { ShellWindowDragApi } from "./window-drag";
@@ -82,6 +83,154 @@ export interface ShellPickStorageBindingParams {
   title?: string;
 }
 
+// ── Window state types (shared shape for third-party app windows) ───────────
+//
+// These are structural subsets of the host's full `WindowState` /
+// `TaskMetadata`. Apps only need to read a small surface (id, metadata,
+// title, etc.) — the host's richer state is assignable to these.
+
+/**
+ * Flat metadata bag attached to every window. The host's TaskMetadata is
+ * a richer named union; third-party apps just see an open record.
+ */
+export type TaskMetadata = Record<string, unknown>;
+
+/**
+ * Structural subset of the host's WindowState that apps can rely on.
+ *
+ * Apps receive this as `{ win: WindowState }` for modal-style and viewer
+ * windows (e.g. `VideoViewer`, `AddOnlineMediaWindow`).
+ */
+export interface WindowState {
+  id: string;
+  appName: string;
+  title: string;
+  type: string;
+  metadata: TaskMetadata;
+  route: string;
+  appId?: string;
+  sourceType?: string;
+  sourceId?: string;
+  serverId?: string;
+  desktopId?: string | null;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  minimized?: boolean;
+  maximized?: boolean;
+  zIndex?: number;
+  dirty?: boolean;
+}
+
+/**
+ * Parameters for `shell.windowManager.openWindow`. Lifted from host
+ * `OpenWindowParams`; third-party apps populate only what they need.
+ */
+export interface OpenWindowParams {
+  type: string;
+  title?: string;
+  appName?: string;
+  appId?: string;
+  sourceType?: string;
+  sourceId?: string;
+  metadata?: TaskMetadata;
+  route?: string;
+  initialX?: number;
+  initialY?: number;
+  initialWidth?: number;
+  initialHeight?: number;
+  forceNew?: boolean;
+}
+
+/** Minimal DTO exposed to third-party apps via the windows snapshot stream. */
+export interface MinimalWindowDTO {
+  id: string;
+  type: string;
+  title: string;
+  active: boolean;
+  minimized: boolean;
+}
+
+// ── WindowManager / WS / Jobs / Bridge / Config injections ──────────────────
+
+/**
+ * Window manager actions + reactive snapshot of all open windows.
+ *
+ * Apps should NOT bypass this to touch host context directly — same bundle
+ * may be mounted across multiple windows, so per-window scoping matters.
+ */
+export interface ShellWindowManagerApi {
+  /** Open a new window (top-level, persisted). Returns the new window id. */
+  openWindow: (params: OpenWindowParams) => string;
+  /** Close a window by id. */
+  closeWindow: (id: string) => void;
+  /** Open an ephemeral modal child window centered on this app's window. */
+  openModalWindow: (params: ShellModalWindowParams) => string;
+  /** Patch arbitrary metadata fields on a window. */
+  updateMetadata: (id: string, meta: Partial<TaskMetadata>) => void;
+  /** This app's own window id (stable for the bundle's lifetime). */
+  currentWindowId: string;
+  /** Reactive minimal DTO snapshot of all open windows. */
+  windowsSnapshot$: ReactiveSource<MinimalWindowDTO[]>;
+}
+
+/** Type-erased WS message envelope (matches host `WsIncoming`). */
+export interface WsMessage {
+  type: string;
+  data?: unknown;
+  reqId?: string;
+  error?: string;
+}
+
+/** Single global WS connection wrapped as a topic subscription API. */
+export interface ShellWsApi {
+  /** Subscribe to a topic; returns unsubscribe. */
+  subscribe: (type: string, handler: (msg: WsMessage) => void) => () => void;
+}
+
+/**
+ * Job event envelope variants. Mirrors host `WsJobEvent`; payload shapes
+ * remain `unknown` to keep the SDK lean (apps narrow as needed).
+ */
+export interface ShellJobEvent {
+  type:
+    | "job_update"
+    | "external_job_update"
+    | "person_scraped"
+    | "download_progress";
+  [key: string]: unknown;
+}
+
+export interface ShellJobEventsApi {
+  subscribe: (params: {
+    onEvent: (event: ShellJobEvent) => void;
+    enabled?: boolean;
+  }) => () => void;
+}
+
+/** Window-bridge primitives. Thin wrapper over host registry. */
+export interface ShellBridgeApi {
+  create: () => string;
+  destroy: (id: string) => void;
+  emit: <T = unknown>(id: string, event: string, payload?: T) => void;
+  subscribe: <T = unknown>(
+    id: string,
+    event: string,
+    handler: (payload: T) => void,
+  ) => () => void;
+}
+
+/** Runtime configuration knobs (escape hatches; default to relative URLs). */
+export interface ShellConfig {
+  /**
+   * Optional absolute base URL for the Rust server. Default `undefined`
+   * means apps should use relative URLs (`/api/...`, `/storage/...`)
+   * and rely on Vite proxy / same-origin in prod.
+   */
+  rustBaseUrl?: string;
+}
+
 export interface AppRuntimeCtx {
   windowId: string;
   appId: string;
@@ -135,4 +284,14 @@ export interface ShellApi {
   pickStorageBinding: (
     params?: ShellPickStorageBindingParams,
   ) => Promise<StorageBinding | null>;
+  /** Window manager actions + reactive snapshot. */
+  windowManager: ShellWindowManagerApi;
+  /** Global WS connection (topic subscribe). */
+  ws: ShellWsApi;
+  /** Cross-app job event stream (jobs / downloads / scrapes). */
+  jobEvents: ShellJobEventsApi;
+  /** In-process window-bridge primitives for picker / cross-window flows. */
+  bridge: ShellBridgeApi;
+  /** Runtime knobs (e.g. optional rustBaseUrl escape hatch). */
+  config: ShellConfig;
 }

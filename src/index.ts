@@ -24,14 +24,22 @@
  */
 
 export * from "./appearance";
+export * from "./bridge";
+export * from "./job-events";
 export * from "./manifest";
 export * from "./media";
 export * from "./menubar";
 export * from "./notify";
+export * from "./react-hooks-runtime";
 export * from "./reactive";
 export * from "./runtime";
+export * from "./runtime-provider";
 export * from "./shell-api";
 export * from "./toast";
+export type { AvatarData } from "./types/avatar";
 export * from "./viewer";
 export * from "./window-drag";
+export * from "./window-id";
+export * from "./window-manager";
 export * from "./window-nav";
+export * from "./ws";

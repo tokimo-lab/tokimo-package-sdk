@@ -25,6 +25,11 @@ export function makeShellApi(
     pickFilePath: injections.pickFilePath,
     listStorageSources: injections.listStorageSources,
     pickStorageBinding: injections.pickStorageBinding,
+    windowManager: injections.windowManager,
+    ws: injections.ws,
+    jobEvents: injections.jobEvents,
+    bridge: injections.bridge,
+    config: injections.config,
   };
 }
 

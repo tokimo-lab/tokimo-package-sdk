@@ -47,6 +47,11 @@ describe("makeShellApi", () => {
     pickFilePath: async () => null,
     listStorageSources: async () => [],
     pickStorageBinding: async () => null,
+    windowManager: {} as never,
+    ws: {} as never,
+    jobEvents: {} as never,
+    bridge: {} as never,
+    config: {} as never,
   };
 
   it("returns object with shell API shape", () => {
