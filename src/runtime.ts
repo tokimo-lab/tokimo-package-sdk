@@ -62,11 +62,18 @@ export interface ShellPickFilePathParams {
   height?: number;
 }
 
+export interface StorageSourceDisplayHints {
+  /** Safe redacted display prefix for the storage source (e.g. "smb://host/share"). */
+  protocolPrefix?: string;
+  /** Local-only real host root path for resolving display paths. */
+  rootPath?: string;
+}
+
 export interface StorageSource {
   id: string;
   name: string;
   type: string;
-  config: unknown;
+  displayHints?: StorageSourceDisplayHints;
   sortOrder: number;
 }
 
@@ -74,7 +81,7 @@ export interface StorageBinding {
   sourceId: string;
   sourceType: string;
   sourceName: string;
-  sourceConfig: unknown;
+  displayHints?: StorageSourceDisplayHints;
   path: string;
 }
 
