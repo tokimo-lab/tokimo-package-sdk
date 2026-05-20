@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { ShellAppearanceApi } from "./appearance";
 import type { ShellMediaApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
@@ -23,6 +23,45 @@ export interface ShellWindowHandle {
    * times; the host de-duplicates close requests.
    */
   close: () => void;
+}
+
+export type VfsFile = unknown;
+
+export type PlayerSourceMetadata = Record<string, unknown>;
+
+export interface PlayerPlayMeta {
+  title: string;
+  poster?: string | null;
+  sourceMetadata?: PlayerSourceMetadata;
+}
+
+export interface PlayerNextItem {
+  file: VfsFile;
+  meta: PlayerPlayMeta;
+}
+
+export interface PlayerExtension {
+  getResumePosition?: (
+    file: VfsFile,
+    sourceMetadata?: Record<string, unknown>,
+  ) => Promise<number | null>;
+  getNextItem?: (
+    file: VfsFile,
+    sourceMetadata?: Record<string, unknown>,
+  ) => Promise<PlayerNextItem | null>;
+  onProgress?: (
+    file: VfsFile,
+    position: number,
+    sourceMetadata?: Record<string, unknown>,
+  ) => void;
+  renderTaskbarActions?: (
+    file: VfsFile,
+    sourceMetadata?: Record<string, unknown>,
+  ) => ReactNode;
+  renderEpisodePicker?: (
+    file: VfsFile,
+    sourceMetadata?: Record<string, unknown>,
+  ) => ReactNode;
 }
 
 /**
@@ -328,29 +367,19 @@ export interface ShellApi {
   /** Host video player (PlayerProvider). */
   player: {
     play: (
-      file: unknown,
-      meta: {
-        title: string;
-        posterPath?: string | null;
-        videoItemId?: string;
-        episodeId?: string;
-        tvShowId?: string;
-        imdbId?: string | null;
-        tmdbId?: string | null;
-      },
+      file: VfsFile,
+      meta: PlayerPlayMeta,
       options?: {
         initialPosition?: number;
         startPaused?: boolean;
-        watchHistoryId?: string;
       },
     ) => Promise<void>;
+    registerExtension: (ext: PlayerExtension) => () => void;
     closePlayer: () => void;
     /** Snapshot of currently playing item (null if nothing playing). */
     getCurrentItem: () => {
       fileId: string;
-      tvShowId?: string;
-      episodeId?: string;
-      videoItemId?: string;
+      sourceMetadata?: Record<string, unknown>;
     } | null;
     /** Subscribe to item changes; returns unsubscribe. */
     subscribeItem: (listener: () => void) => () => void;
