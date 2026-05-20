@@ -2,6 +2,8 @@ import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRuntimeCtx, useShellApi } from "./runtime-provider";
 
+const MAX_CONTAINER_LOOKUP_FRAMES = 30;
+
 export interface WindowContainerOptions {
   /**
    * When `true`, the returned container covers the **entire window**
@@ -28,7 +30,38 @@ export function useWindowContainer(
   const includeTitleBar = options?.includeTitleBar ?? false;
 
   useEffect(() => {
-    setContainer(shell.getWindowContainer(windowId, { includeTitleBar }));
+    let cancelled = false;
+    let frame = 0;
+    let frameId: number | null = null;
+
+    const lookup = () => {
+      const next = shell.getWindowContainer(windowId, { includeTitleBar });
+      if (cancelled) return;
+      if (next) {
+        setContainer(next);
+        return;
+      }
+      if (frame >= MAX_CONTAINER_LOOKUP_FRAMES) {
+        setContainer(null);
+        console.warn(
+          `[WindowPortal] container not found for window ${windowId} after ${MAX_CONTAINER_LOOKUP_FRAMES} frames`,
+        );
+        return;
+      }
+      frame += 1;
+      frameId = window.requestAnimationFrame(lookup);
+    };
+
+    // Window content refs are registered by the shell after the child tree starts
+    // rendering, so portal lookup can race initial mount by a few frames.
+    lookup();
+
+    return () => {
+      cancelled = true;
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
   }, [shell, windowId, includeTitleBar]);
 
   return container;
