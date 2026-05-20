@@ -25,7 +25,6 @@
 
 export * from "./appearance";
 export * from "./bridge";
-export * from "./bus";
 export * from "./hooks";
 export * from "./job-events";
 export * from "./lib/avatar";
