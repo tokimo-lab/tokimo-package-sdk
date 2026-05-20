@@ -1,7 +1,13 @@
+import type { ShellBusEvent } from "./bus";
 import { postNotify } from "./notify";
 import type { ShellApi } from "./runtime";
 
-export type ShellInjections = Omit<ShellApi, "notify">;
+export type ShellInjections = Omit<ShellApi, "notify" | "bus"> & {
+  busSubscribe: <T = unknown>(
+    eventType: string,
+    handler: (event: ShellBusEvent<T>) => void,
+  ) => () => void;
+};
 
 /**
  * 给 shell adapter 用：传入由 shell 注入的有状态能力
@@ -16,6 +22,9 @@ export function makeShellApi(
     notify: (input) => postNotify(input, appId),
     getWindowContainer: injections.getWindowContainer,
     media: injections.media,
+    bus: {
+      subscribe: injections.busSubscribe,
+    },
     menubar: injections.menubar,
     toast: injections.toast,
     windowNav: injections.windowNav,

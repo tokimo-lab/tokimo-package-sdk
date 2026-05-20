@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { ShellAppearanceApi } from "./appearance";
+import type { ShellBusApi } from "./bus";
 import type { ShellMediaApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
@@ -253,6 +254,8 @@ export interface ShellApi {
   getWindowContainer: (windowId: string) => HTMLElement | null;
   /** 全局媒体引擎（CentralMusicEngine 的薄包装），跨 app 单例。 */
   media: ShellMediaApi;
+  /** Shell 全局 WebSocket 事件流订阅。 */
+  bus: ShellBusApi;
   /** 顶部菜单栏注册（窗口聚焦时显示）。 */
   menubar: ShellMenuBarApi;
   /** Toast / 消息提示。 */
