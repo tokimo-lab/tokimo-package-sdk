@@ -40,6 +40,11 @@ export interface PlayerNextItem {
   meta: PlayerPlayMeta;
 }
 
+export type RegisterPlayerExtension = {
+  (appId: string, ext: PlayerExtension): () => void;
+  (ext: PlayerExtension): () => void;
+};
+
 export interface PlayerExtension {
   getResumePosition?: (
     file: VfsFile,
@@ -374,7 +379,7 @@ export interface ShellApi {
         startPaused?: boolean;
       },
     ) => Promise<void>;
-    registerExtension: (ext: PlayerExtension) => () => void;
+    registerExtension: RegisterPlayerExtension;
     closePlayer: () => void;
     /** Snapshot of currently playing item (null if nothing playing). */
     getCurrentItem: () => {
