@@ -34,13 +34,11 @@ export interface MediaProviderHandle {
   /** host UI 显示用（"Apple Music" / "本地音乐"）。 */
   displayName: string;
   /**
-   * host 准备播放某 track 时回调 provider 解析真实可播 URL。
-   * 必须返回 HTMLAudio 能直接 src 的 URL（http/https，HLS 不在本期支持）。
-   * 可选 headers（如鉴权），但同源 GET 通常不需要。
+   * 解析 track 的可播 URL。必须是一个固定不变、HTMLAudio 能直接 src 的 URL
+   * （http/https 同源或 CORS OK）。鉴权由 provider 后端处理，host 完全无感知。
+   * 同步返回，不再支持 headers。
    */
-  resolveAudioUrl(
-    track: MediaTrack,
-  ): Promise<{ url: string; headers?: Record<string, string> }>;
+  resolveAudioUrl(track: MediaTrack): string;
   /** 可选：track 切换通知，便于 scrobble / 推荐刷新。 */
   onTrackChanged?(
     track: MediaTrack,
