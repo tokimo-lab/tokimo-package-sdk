@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import type { ShellAppearanceApi } from "./appearance";
-import type { ShellMediaApi } from "./media";
+import type { ShellMediaCenterApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
 import type { ReactiveSource } from "./reactive";
@@ -252,7 +252,7 @@ export interface ShellApi {
   notify: (input: NotifyInput) => Promise<void>;
   getWindowContainer: (windowId: string) => HTMLElement | null;
   /** 全局媒体引擎（CentralMusicEngine 的薄包装），跨 app 单例。 */
-  media: ShellMediaApi;
+  media: ShellMediaCenterApi;
   /** 顶部菜单栏注册（窗口聚焦时显示）。 */
   menubar: ShellMenuBarApi;
   /** Toast / 消息提示。 */

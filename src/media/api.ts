@@ -1,51 +1,53 @@
 import type {
-  LoadAndPlayOptions,
-  MediaSessionSnapshot,
-  MediaSessionSource,
-  MusicPlaybackSnapshot,
+  MediaCenterSnapshot,
+  MediaProviderHandle,
+  MediaTrack,
+  PlayInput,
+  RepeatMode,
 } from "./types";
 
-export interface ShellMediaApi {
-  // Central engine ── 跨 app 单例
-  loadAndPlay: (url: string, opts: LoadAndPlayOptions) => Promise<void>;
-  pause: () => void;
-  resume: () => void;
-  seek: (time: number) => void;
-  stop: () => void;
-  setVolume: (vol: number) => void;
-  setInitialVolume: (vol: number) => void;
-  getCurrentTime: () => number;
-  getDuration: () => number;
-  getIsPlaying: () => boolean;
-  getActiveProvider: () => string | null;
-  getAnalyser: () => AnalyserNode | null;
-  getSnapshot: () => MusicPlaybackSnapshot;
-  /** 订阅引擎状态变化（每次 snapshot 改变都触发）。返回 unsubscribe。 */
-  subscribe: (listener: () => void) => () => void;
-  /** 当前曲目播放结束回调。返回 unsubscribe。 */
-  onEnded: (cb: () => void) => () => void;
+/**
+ * 系统级 Media Center API。整个系统只有一个 active player；任何
+ * provider 调 play() 都会立刻顶掉前一个（互顶 = mutually preemptive）。
+ */
+export interface ShellMediaCenterApi {
+  /**
+   * Provider 启动时注册自己；返回 unregister 函数。同一 providerId 重复注册
+   * 会覆盖前者（dispose 旧的）。
+   */
+  registerProvider(providerId: string, handle: MediaProviderHandle): () => void;
 
-  // Media session（跨 app 注册 + 系统级播放器互斥）
-  registerSession: (source: MediaSessionSource) => () => void;
-  /** 局部更新已注册 source 的元数据（不触发 React 重渲染）。 */
-  updateSession: (id: string, patch: Partial<MediaSessionSource>) => void;
-  requestPlay: (id: string, provider?: string) => void;
-  notifyPause: (id: string, provider?: string) => void;
-  notifyClose: (id: string, provider?: string) => void;
   /**
-   * 读取 host 当前媒体会话快照（活跃源 + 持久化播放数据）。
-   * 跨 app 只读访问：apple-music 需根据 host 活跃源判断是否在播放自己。
+   * 开始播放一个 queue。立即顶掉当前 active provider（暂停其 audio，切换
+   * activeProviderId）。如果 providerId 未注册返回 rejected promise。
    */
-  getSessionSnapshot: () => MediaSessionSnapshot;
-  /** 订阅会话快照变化（activeSource / rawPlaybackData 任一变动都触发）。 */
-  subscribeSession: (listener: () => void) => () => void;
+  play(input: PlayInput): Promise<void>;
+
+  pause(): void;
+  resume(): void;
+  /** 跳转到当前曲目某位置（毫秒）。 */
+  seek(timeMs: number): void;
+  /** 跳下一首（按 shuffle/repeat 算法）。 */
+  next(): void;
+  /** 上一首（同上）。 */
+  previous(): void;
+  /** 跳到 queue 中指定 index。 */
+  skipToIndex(index: number): void;
+  setShuffle(on: boolean): void;
+  setRepeat(mode: RepeatMode): void;
   /**
-   * 通知 host 当前源状态需要持久化。只对 active source 生效。
-   * `immediate: true` 跳过 debounce（用于 play/pause/next 等关键动作）。
+   * 整体替换 queue（保持当前曲目继续播放，currentIndex 重新定位到新 queue
+   * 中相同 id 的位置；找不到则播放新 queue[startIndex]）。
    */
-  notifySaveNeeded: (
-    id: string,
-    provider?: string,
-    immediate?: boolean,
-  ) => void;
+  setQueue(queue: MediaTrack[], startIndex?: number): void;
+  setVolume(v: number): void;
+
+  /** 即时读快照（null = 无 active）。 */
+  getSnapshot(): MediaCenterSnapshot | null;
+  /** 订阅 snapshot 变化（每次 setState 都触发）。返回 unsubscribe。 */
+  subscribe(
+    listener: (snapshot: MediaCenterSnapshot | null) => void,
+  ): () => void;
+  /** 可视化用 AnalyserNode（懒创建，需先 play 过一次）。 */
+  getAnalyser(): AnalyserNode | null;
 }
