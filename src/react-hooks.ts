@@ -8,21 +8,13 @@
  * These helpers depend on React but not React-DOM; bundlers should externalize
  * "react" so the host React instance is reused (mandatory for hook identity).
  */
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type {
   AppAppearanceSnapshot,
   AppRuntimeCtx,
-  MediaSessionSnapshot,
-  MediaSessionSource,
+  MediaCenterSnapshot,
   MenuBarConfig,
-  MusicPlaybackSnapshot,
-  ShellMediaApi,
+  ShellMediaCenterApi,
   ShellToastApi,
   ShellViewerApi,
   ShellWindowDragSnapshot,
@@ -40,72 +32,24 @@ export function useShellLocale(ctx: AppRuntimeCtx): string {
   return locale;
 }
 
-// ── Media playback ──────────────────────────────────────────────────────────
+// ── Media center ────────────────────────────────────────────────────────────
 //
-// Returns a live snapshot of the central engine plus the media command set.
-// Re-renders on every snapshot change.
+// Subscribe to the host MediaCenter snapshot. snapshot === null means no
+// provider is currently active.
 
-export interface UseShellMediaResult extends ShellMediaApi {
-  snapshot: MusicPlaybackSnapshot;
+export interface UseMediaCenterResult {
+  snapshot: MediaCenterSnapshot | null;
+  api: ShellMediaCenterApi;
 }
 
-export function useShellMedia(ctx: AppRuntimeCtx): UseShellMediaResult {
+export function useMediaCenter(ctx: AppRuntimeCtx): UseMediaCenterResult {
   const media = ctx.shell.media;
   const snapshot = useSyncExternalStore(
-    (cb) => media.subscribe(cb),
+    (cb) => media.subscribe(() => cb()),
     () => media.getSnapshot(),
     () => media.getSnapshot(),
   );
-  return useMemo(() => ({ ...media, snapshot }), [media, snapshot]);
-}
-
-// ── Media session (cross-app player registration) ───────────────────────────
-//
-// Keeps the registered source in sync with the host. When `source` is null the
-// hook does nothing (safe for conditional usage). On change the previous
-// session is unregistered before the new one registers.
-
-export function useShellMediaSession(
-  ctx: AppRuntimeCtx,
-  source: MediaSessionSource | null,
-): void {
-  const sourceRef = useRef(source);
-  sourceRef.current = source;
-  const id = source?.id;
-
-  // We deliberately key on `id` only — patches to the source object are
-  // applied via updateSession() below, not by re-registering.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: see comment above
-  useEffect(() => {
-    if (!sourceRef.current) return;
-    const dispose = ctx.shell.media.registerSession(sourceRef.current);
-    return dispose;
-  }, [ctx.shell.media, id]);
-
-  // Patch metadata when source mutates (without unregistering).
-  useEffect(() => {
-    if (!source) return;
-    ctx.shell.media.updateSession(source.id, source);
-  }, [ctx.shell.media, source]);
-}
-
-/**
- * Subscribe to the host's media session snapshot (active source + persisted
- * playback data). Returns a reactive value that re-renders on snapshot change.
- *
- * Third-party apps use this to read host state they don't own — e.g. the
- * currently playing source across apps, or the server-restored playback data
- * needed to resume after a reload.
- */
-export function useShellMediaSessionSnapshot(
-  ctx: AppRuntimeCtx,
-): MediaSessionSnapshot {
-  const media = ctx.shell.media;
-  return useSyncExternalStore(
-    (cb) => media.subscribeSession(cb),
-    () => media.getSessionSnapshot(),
-    () => media.getSessionSnapshot(),
-  );
+  return useMemo(() => ({ snapshot, api: media }), [snapshot, media]);
 }
 
 // ── Menubar ────────────────────────────────────────────────────────────────

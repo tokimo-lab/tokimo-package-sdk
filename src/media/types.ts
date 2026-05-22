@@ -1,79 +1,60 @@
-export type MediaSourceType = "video" | "music" | "audio";
-
-export interface MediaSessionQueueItem {
+/** 一首可播放的曲目（provider-agnostic）。 */
+export interface MediaTrack {
+  /** provider 域内唯一 id（apple-music 用 catalogId，local-music 用 song uuid）。 */
   id: string;
-  title: string;
-  artist?: string;
-  artwork?: string;
-  duration?: number;
-}
-
-export interface MusicPlaybackSnapshot {
-  /** 当前 active provider id（如 `"apple-music"`）；null 表示无活跃源。 */
-  activeProvider: string | null;
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-}
-
-export interface LoadAndPlayOptions {
-  /** App / 业务层的 provider 名（用于互斥与 active 判断）。 */
-  provider: string;
-  /** 当前播放音轨 id（用于 onEnded 时判断是否仍是当前曲目）。 */
-  trackId?: string;
-  /** 起始播放位置（秒）。 */
-  startTime?: number;
-  /** 自定义请求头（用于鉴权 / Range）。 */
-  headers?: Record<string, string>;
-  /** 是否以 HLS 形式播放（m3u8）。 */
-  hls?: boolean;
-}
-
-export interface MediaSessionSource {
-  id: string;
-  type: MediaSourceType;
-  provider?: string;
-  trackId?: string;
-  /** UI 显示用的 label（如 "Apple Music"）。 */
-  label?: string;
   title: string;
   artist?: string;
   album?: string;
-  artwork?: string;
-  isPlaying: boolean;
-  getCurrentTime: () => number;
-  getDuration: () => number;
-  volume: number;
-  play: () => void;
-  pause: () => void;
-  seek: (time: number) => void;
-  setVolume: (volume: number) => void;
-  next?: () => void;
-  previous?: () => void;
-  getAnalyser?: () => AnalyserNode | null;
-  queue: MediaSessionQueueItem[];
-  currentIndex: number;
-  skipToIndex?: (index: number) => void;
-  removeFromQueue?: (index: number) => void;
-  /**
-   * Returns the current playback state for persistence. Host's media center
-   * (single write authority) calls this when notifySaveNeeded fires. Shape
-   * must match host PlaybackStateData["music"]; we keep it `unknown` here to
-   * avoid coupling the SDK to host internals.
-   */
-  buildPersistState?: () => unknown;
+  artworkUrl?: string;
+  /** 单位毫秒。可选——某些 provider 在 resolveAudioUrl 之后才知道。 */
+  durationMs?: number;
+  /** Provider 不透明扩展（apple-music 存 isrc、release year 等）。 */
+  meta?: Record<string, unknown>;
 }
 
-/** host 侧共享给 bundle 的媒体会话只读快照。 */
-export interface MediaSessionSnapshot {
-  activeSource: MediaSessionSource | null;
+export type RepeatMode = "off" | "one" | "all";
+
+/** 当前 active media center 状态。null = 无任何播放。 */
+export interface MediaCenterSnapshot {
+  providerId: string;
+  /** 当前活跃 queue 完整副本。 */
+  queue: MediaTrack[];
+  currentIndex: number;
+  isPlaying: boolean;
+  currentTimeMs: number;
+  durationMs: number;
+  shuffle: boolean;
+  repeatMode: RepeatMode;
+  /** 0..1。 */
+  volume: number;
+}
+
+/** Provider 注册时提供给 host 的 callback 集合。 */
+export interface MediaProviderHandle {
+  /** host UI 显示用（"Apple Music" / "本地音乐"）。 */
+  displayName: string;
   /**
-   * 从服务端拉回的持久化播放数据，由 host 定义具体类型。
-   * 对 SDK 是 opaque —— bundle 自行 cast 到业务类型（如 apple-music 的
-   * `PlaybackStateData`）。
+   * 解析 track 的可播 URL。必须是一个固定不变、HTMLAudio 能直接 src 的 URL
+   * （http/https 同源或 CORS OK）。鉴权由 provider 后端处理，host 完全无感知。
+   * 同步返回，不再支持 headers。
    */
-  rawPlaybackData: unknown;
-  /** host 初次加载完成后置 true。 */
-  rawPlaybackDataReady: boolean;
+  resolveAudioUrl(track: MediaTrack): string;
+  /** 可选：track 切换通知，便于 scrobble / 推荐刷新。 */
+  onTrackChanged?(
+    track: MediaTrack,
+    reason: "user" | "auto-next" | "auto-repeat",
+  ): void;
+  /** 可选：queue 即将耗尽，让 provider 续接（返回 null = 不续）。 */
+  fetchMore?(): Promise<MediaTrack[] | null>;
+  /** 可选：provider 自定义资源清理（unregister 时触发）。 */
+  dispose?(): void;
+}
+
+export interface PlayInput {
+  providerId: string;
+  queue: MediaTrack[];
+  /** 默认 0。 */
+  startIndex?: number;
+  /** 起播时间（毫秒）。默认 0。 */
+  startTimeMs?: number;
 }

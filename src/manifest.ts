@@ -27,6 +27,13 @@ export interface AppDefinition {
    * Must return a dispose function that tears down the React root.
    */
   mount: (container: HTMLElement, ctx: AppRuntimeCtx) => Dispose;
+  /**
+   * Optional headless mount for "background" apps (manifest [ui] background=true).
+   * Called once at host startup into a hidden container; runs alongside any
+   * window-level mount. Use to register media sessions / WS subscriptions /
+   * persistent state that must survive when no window is open.
+   */
+  mountBackground?: (container: HTMLElement, ctx: AppRuntimeCtx) => Dispose;
 }
 
 export type Dispose = () => void;
