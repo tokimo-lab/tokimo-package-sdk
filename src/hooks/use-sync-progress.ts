@@ -31,6 +31,8 @@ interface UseSyncProgressOptions<TLib extends LibraryItem> {
   onContentRefresh: () => void;
   onLibraryRefresh: () => void;
   scanJobTypes?: readonly string[];
+  /** Map job payload → library UUID. Defaults to `payload.appId`. */
+  resolveLibraryId?: (payload: Record<string, unknown>) => string | undefined;
 }
 
 interface JobShape {
@@ -54,6 +56,7 @@ export function useSyncProgress<TLib extends LibraryItem>({
   onContentRefresh,
   onLibraryRefresh,
   scanJobTypes,
+  resolveLibraryId,
 }: UseSyncProgressOptions<TLib>): Record<string, LibrarySyncState> {
   const queryClient = useQueryClient();
 
@@ -112,6 +115,9 @@ export function useSyncProgress<TLib extends LibraryItem>({
     libraryIdsRef.current = new Set((libraries ?? []).map((l) => l.id));
   }, [libraries]);
 
+  const resolveLibraryIdRef = useRef(resolveLibraryId);
+  resolveLibraryIdRef.current = resolveLibraryId;
+
   const fetchAllRef = useRef<(() => Promise<void>) | null>(null);
   const wsFetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -121,7 +127,10 @@ export function useSyncProgress<TLib extends LibraryItem>({
       const job = (event as { job?: JobShape }).job;
       if (!job) return;
       const payload = job.payload ?? {};
-      const appId = payload.appId as string | undefined;
+      const resolve =
+        resolveLibraryIdRef.current ??
+        ((p: Record<string, unknown>) => p.appId as string | undefined);
+      const appId = resolve(payload);
       if (!appId || !libraryIdsRef.current.has(appId)) return;
 
       const typeSet = scanJobTypeSetRef.current;
