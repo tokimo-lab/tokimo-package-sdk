@@ -29,6 +29,8 @@ export function makeShellApi(
     windowManager: injections.windowManager,
     ws: injections.ws,
     jobEvents: injections.jobEvents,
+    personEvents: injections.personEvents,
+    downloadEvents: injections.downloadEvents,
     bridge: injections.bridge,
     config: injections.config,
     subscribeLocale: injections.subscribeLocale,

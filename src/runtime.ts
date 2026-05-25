@@ -245,11 +245,7 @@ export interface ShellWsApi {
  * remain `unknown` to keep the SDK lean (apps narrow as needed).
  */
 export interface ShellJobEvent {
-  type:
-    | "job_update"
-    | "external_job_update"
-    | "person_scraped"
-    | "download_progress";
+  type: "job_update" | "external_job_update";
   /** Top-level app id extracted by host when available. */
   appId?: string | null;
   /** Preferred payload carrier for `job_update` in SDK runtime. */
@@ -259,12 +255,54 @@ export interface ShellJobEvent {
   [key: string]: unknown;
 }
 
-export interface ShellJobEventsApi {
+export interface ShellPersonScrapedEvent {
+  type: "person_scraped";
+  /** Generic event payload — business-specific fields live here */
+  data?: unknown;
+  appId?: string | null;
+  reqId?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export type ShellPersonEvent = ShellPersonScrapedEvent;
+
+export interface ShellDownloadProgressItem {
+  id: string;
+  status: string;
+  progress: string | null;
+  downloadSpeed: number | null;
+  uploadSpeed: number | null;
+  downloadedSize: string | null;
+  uploadedSize: string | null;
+  fileSize: string | null;
+  ratio: string | null;
+  seedingTime: string | null;
+  torrentState: string | null;
+}
+
+export interface ShellDownloadProgressEvent {
+  type: "download_progress";
+  records: ShellDownloadProgressItem[];
+  appId?: string | null;
+  data?: unknown;
+  reqId?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export type ShellDownloadEvent = ShellDownloadProgressEvent;
+
+export interface ShellEventChannelApi<TEvent> {
   subscribe: (params: {
-    onEvent: (event: ShellJobEvent) => void;
+    onEvent: (event: TEvent) => void;
     enabled?: boolean;
   }) => () => void;
 }
+
+export type ShellJobEventsApi = ShellEventChannelApi<ShellJobEvent>;
+export type ShellPersonEventsApi = ShellEventChannelApi<ShellPersonEvent>;
+export type ShellDownloadEventsApi = ShellEventChannelApi<ShellDownloadEvent>;
 
 /** Window-bridge primitives. Thin wrapper over host registry. */
 export interface ShellBridgeApi {
@@ -358,8 +396,12 @@ export interface ShellApi {
   windowManager: ShellWindowManagerApi;
   /** Global WS connection (topic subscribe). */
   ws: ShellWsApi;
-  /** Cross-app job event stream (jobs / downloads / scrapes). */
+  /** Cross-app job event stream. */
   jobEvents: ShellJobEventsApi;
+  /** Cross-app person scrape event stream. */
+  personEvents: ShellPersonEventsApi;
+  /** Cross-app download progress event stream. */
+  downloadEvents: ShellDownloadEventsApi;
   /** In-process window-bridge primitives for picker / cross-window flows. */
   bridge: ShellBridgeApi;
   /** Runtime knobs (e.g. optional rustBaseUrl escape hatch). */

@@ -1,31 +1,38 @@
 /**
  * Job event hooks — wrappers over `ctx.shell.jobEvents`.
  *
- * `useJobEvents({ onEvent, enabled })` mirrors the host's hook signature.
+ * `useJobEvents({ jobTypes, onEvent, enabled })` mirrors the host's job hook signature
+ * and optionally filters by job type.
  * `useJobSubscription(jobId, cb)` filters job_update events by job id.
- * `useJobProgress(jobType, cb)` filters job_update events by job type.
  */
 
 import { useEffect, useRef } from "react";
 import type { ShellJobEvent } from "./runtime";
 import { useShellApi } from "./runtime-provider";
 
-export interface UseJobEventsOptions {
-  onEvent: (event: ShellJobEvent) => void;
-  enabled?: boolean;
-}
+export type JobType = string;
+export type JobUpdateEvent = ShellJobEvent & { type: "job_update" };
 
-export function useJobEvents(options: UseJobEventsOptions): void {
-  const { enabled = true } = options;
-  const onEventRef = useRef(options.onEvent);
-  onEventRef.current = options.onEvent;
+export function useJobEvents(opts: {
+  jobTypes?: JobType[];
+  onEvent: (e: ShellJobEvent) => void;
+  enabled?: boolean;
+}): void {
+  const { enabled = true } = opts;
+  const onEventRef = useRef(opts.onEvent);
+  onEventRef.current = opts.onEvent;
+  const jobTypesRef = useRef(opts.jobTypes);
+  jobTypesRef.current = opts.jobTypes;
   const jobEvents = useShellApi().jobEvents;
 
   useEffect(() => {
     if (!enabled) return;
     return jobEvents.subscribe({
       enabled: true,
-      onEvent: (e) => onEventRef.current(e),
+      onEvent: (e) => {
+        if (!shouldForwardJobEvent(e, jobTypesRef.current)) return;
+        onEventRef.current(e);
+      },
     });
   }, [jobEvents, enabled]);
 }
@@ -59,10 +66,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isMatchingJobType(event: ShellJobEvent, jobType: string): boolean {
-  if (event.type !== "job_update") return false;
+function shouldForwardJobEvent(
+  event: ShellJobEvent,
+  jobTypes: JobType[] | undefined,
+): boolean {
+  if (!jobTypes || jobTypes.length === 0) return true;
   const job = getJobRecord(event);
-  return job?.type === jobType;
+  return typeof job?.type === "string" && jobTypes.includes(job.type);
 }
 
 function getJobRecord(
@@ -81,20 +91,4 @@ function getJobRecord(
   }
 
   return event.data as { id?: string; type?: string };
-}
-
-export function useJobProgress(
-  jobType: string,
-  handler: (event: ShellJobEvent) => void,
-): void {
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  useJobEvents({
-    enabled: true,
-    onEvent: (event) => {
-      if (!isMatchingJobType(event, jobType)) return;
-      handlerRef.current(event);
-    },
-  });
 }
