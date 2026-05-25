@@ -3,6 +3,7 @@
  *
  * `useJobEvents({ onEvent, enabled })` mirrors the host's hook signature.
  * `useJobSubscription(jobId, cb)` filters job_update events by job id.
+ * `useJobProgress(jobType, cb)` filters job_update events by job type.
  */
 
 import { useEffect, useRef } from "react";
@@ -52,4 +53,30 @@ export function useJobSubscription(
       },
     });
   }, [jobEvents, jobId]);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isMatchingJobType(event: ShellJobEvent, jobType: string): boolean {
+  if (event.type !== "job_update") return false;
+  if (!isRecord(event.data)) return false;
+  return event.data.type === jobType;
+}
+
+export function useJobProgress(
+  jobType: string,
+  handler: (event: ShellJobEvent) => void,
+): void {
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
+  useJobEvents({
+    enabled: true,
+    onEvent: (event) => {
+      if (!isMatchingJobType(event, jobType)) return;
+      handlerRef.current(event);
+    },
+  });
 }

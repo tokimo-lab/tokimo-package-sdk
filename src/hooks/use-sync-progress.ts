@@ -31,15 +31,15 @@ interface UseSyncProgressOptions<TLib extends LibraryItem> {
   onContentRefresh: () => void;
   onLibraryRefresh: () => void;
   scanJobTypes?: readonly string[];
-  /** Map job payload → library UUID. Defaults to `payload.appId`. */
-  resolveLibraryId?: (payload: Record<string, unknown>) => string | undefined;
+  /** Map job params → library UUID. Defaults to `params.appId`. */
+  resolveLibraryId?: (params: Record<string, unknown>) => string | undefined;
 }
 
 interface JobShape {
   id?: string;
   type?: string;
   status?: string;
-  payload?: Record<string, unknown>;
+  params?: Record<string, unknown>;
 }
 
 /**
@@ -126,11 +126,11 @@ export function useSyncProgress<TLib extends LibraryItem>({
       if (event.type !== "job_update") return;
       const job = (event as { job?: JobShape }).job;
       if (!job) return;
-      const payload = job.payload ?? {};
+      const params = job.params ?? {};
       const resolve =
         resolveLibraryIdRef.current ??
         ((p: Record<string, unknown>) => p.appId as string | undefined);
-      const appId = resolve(payload);
+      const appId = resolve(params);
       if (!appId || !libraryIdsRef.current.has(appId)) return;
 
       const typeSet = scanJobTypeSetRef.current;
