@@ -48,7 +48,7 @@ export function useJobSubscription(
       enabled: true,
       onEvent: (e) => {
         if (e.type !== "job_update") return;
-        const job = (e as { job?: { id?: string } }).job;
+        const job = getJobRecord(e);
         if (job?.id === jobId) handlerRef.current(e);
       },
     });
@@ -61,8 +61,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isMatchingJobType(event: ShellJobEvent, jobType: string): boolean {
   if (event.type !== "job_update") return false;
-  if (!isRecord(event.data)) return false;
-  return event.data.type === jobType;
+  const job = getJobRecord(event);
+  return job?.type === jobType;
+}
+
+function getJobRecord(
+  event: ShellJobEvent,
+): { id?: string; type?: string } | null {
+  const legacyJob = (event as { job?: unknown }).job;
+  if (isRecord(legacyJob)) {
+    return legacyJob as { id?: string; type?: string };
+  }
+
+  if (!isRecord(event.data)) return null;
+
+  const nestedJob = (event.data as { job?: unknown }).job;
+  if (isRecord(nestedJob)) {
+    return nestedJob as { id?: string; type?: string };
+  }
+
+  return event.data as { id?: string; type?: string };
 }
 
 export function useJobProgress(

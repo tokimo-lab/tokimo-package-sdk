@@ -31,7 +31,12 @@ interface UseSyncProgressOptions<TLib extends LibraryItem> {
   onContentRefresh: () => void;
   onLibraryRefresh: () => void;
   scanJobTypes?: readonly string[];
-  /** Map job params → library UUID. Defaults to `params.appId`. */
+  /** Map job params + data → library UUID. */
+  resolveLibraryIdFromJob?: (job: {
+    params: Record<string, unknown>;
+    data: Record<string, unknown>;
+  }) => string | undefined;
+  /** @deprecated Prefer `resolveLibraryIdFromJob` for params + data semantics. */
   resolveLibraryId?: (params: Record<string, unknown>) => string | undefined;
 }
 
@@ -40,6 +45,27 @@ interface JobShape {
   type?: string;
   status?: string;
   params?: Record<string, unknown>;
+  data?: Record<string, unknown> | null;
+  payload?: Record<string, unknown> | null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readJobFromEvent(event: unknown): JobShape | null {
+  if (!isRecord(event)) return null;
+
+  const legacyJob = (event as { job?: unknown }).job;
+  if (isRecord(legacyJob)) return legacyJob as JobShape;
+
+  const eventData = (event as { data?: unknown }).data;
+  if (!isRecord(eventData)) return null;
+
+  const nestedJob = (eventData as { job?: unknown }).job;
+  if (isRecord(nestedJob)) return nestedJob as JobShape;
+
+  return eventData as JobShape;
 }
 
 /**
@@ -56,6 +82,7 @@ export function useSyncProgress<TLib extends LibraryItem>({
   onContentRefresh,
   onLibraryRefresh,
   scanJobTypes,
+  resolveLibraryIdFromJob,
   resolveLibraryId,
 }: UseSyncProgressOptions<TLib>): Record<string, LibrarySyncState> {
   const queryClient = useQueryClient();
@@ -115,6 +142,8 @@ export function useSyncProgress<TLib extends LibraryItem>({
     libraryIdsRef.current = new Set((libraries ?? []).map((l) => l.id));
   }, [libraries]);
 
+  const resolveLibraryIdFromJobRef = useRef(resolveLibraryIdFromJob);
+  resolveLibraryIdFromJobRef.current = resolveLibraryIdFromJob;
   const resolveLibraryIdRef = useRef(resolveLibraryId);
   resolveLibraryIdRef.current = resolveLibraryId;
 
@@ -124,13 +153,14 @@ export function useSyncProgress<TLib extends LibraryItem>({
   useJobEvents({
     onEvent: (event) => {
       if (event.type !== "job_update") return;
-      const job = (event as { job?: JobShape }).job;
+      const job = readJobFromEvent(event);
       if (!job) return;
       const params = job.params ?? {};
-      const resolve =
-        resolveLibraryIdRef.current ??
-        ((p: Record<string, unknown>) => p.appId as string | undefined);
-      const appId = resolve(params);
+      const data = job.data ?? job.payload ?? {};
+      const appId =
+        resolveLibraryIdFromJobRef.current?.({ params, data }) ??
+        resolveLibraryIdRef.current?.(params) ??
+        ((data.appId ?? params.appId ?? params.videoId) as string | undefined);
       if (!appId || !libraryIdsRef.current.has(appId)) return;
 
       const typeSet = scanJobTypeSetRef.current;

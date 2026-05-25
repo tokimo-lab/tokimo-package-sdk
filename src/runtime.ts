@@ -250,6 +250,12 @@ export interface ShellJobEvent {
     | "external_job_update"
     | "person_scraped"
     | "download_progress";
+  /** Top-level app id extracted by host when available. */
+  appId?: string | null;
+  /** Preferred payload carrier for `job_update` in SDK runtime. */
+  data?: unknown;
+  /** Legacy compatibility payload (`{ type: "job_update", job: ... }`). */
+  job?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
