@@ -75,7 +75,7 @@ export function useInfiniteScroll<T extends { id: string }>({
   // ── Accumulate pages ────────────────────────────────────────────────
   // biome-ignore lint/correctness/useExhaustiveDependencies: generation forces re-run after reset()
   useEffect(() => {
-    if (!queryData) return;
+    if (!queryData || isFetching) return;
     const { page: dataPage, items } = queryData;
 
     // Page 1 always replaces — handles initial load, cache hit after reset,
