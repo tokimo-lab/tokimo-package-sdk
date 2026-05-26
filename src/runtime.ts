@@ -255,44 +255,6 @@ export interface ShellJobEvent {
   [key: string]: unknown;
 }
 
-export interface ShellPersonScrapedEvent {
-  type: "person_scraped";
-  /** Generic event payload — business-specific fields live here */
-  data?: unknown;
-  appId?: string | null;
-  reqId?: string;
-  error?: string;
-  [key: string]: unknown;
-}
-
-export type ShellPersonEvent = ShellPersonScrapedEvent;
-
-export interface ShellDownloadProgressItem {
-  id: string;
-  status: string;
-  progress: string | null;
-  downloadSpeed: number | null;
-  uploadSpeed: number | null;
-  downloadedSize: string | null;
-  uploadedSize: string | null;
-  fileSize: string | null;
-  ratio: string | null;
-  seedingTime: string | null;
-  torrentState: string | null;
-}
-
-export interface ShellDownloadProgressEvent {
-  type: "download_progress";
-  records: ShellDownloadProgressItem[];
-  appId?: string | null;
-  data?: unknown;
-  reqId?: string;
-  error?: string;
-  [key: string]: unknown;
-}
-
-export type ShellDownloadEvent = ShellDownloadProgressEvent;
-
 export interface ShellEventChannelApi<TEvent> {
   subscribe: (params: {
     onEvent: (event: TEvent) => void;
@@ -301,8 +263,19 @@ export interface ShellEventChannelApi<TEvent> {
 }
 
 export type ShellJobEventsApi = ShellEventChannelApi<ShellJobEvent>;
-export type ShellPersonEventsApi = ShellEventChannelApi<ShellPersonEvent>;
-export type ShellDownloadEventsApi = ShellEventChannelApi<ShellDownloadEvent>;
+
+/**
+ * Generic entity event emitted by a specific app.
+ * Mirrors the host's `app_entity` WS message payload.
+ */
+export interface ShellAppEntityEvent {
+  appId: string;
+  kind: string;
+  scope: string | null;
+  payload: unknown;
+}
+
+export type ShellAppEntityEventsApi = ShellEventChannelApi<ShellAppEntityEvent>;
 
 /** Window-bridge primitives. Thin wrapper over host registry. */
 export interface ShellBridgeApi {
@@ -398,10 +371,8 @@ export interface ShellApi {
   ws: ShellWsApi;
   /** Cross-app job event stream. */
   jobEvents: ShellJobEventsApi;
-  /** Cross-app person scrape event stream. */
-  personEvents: ShellPersonEventsApi;
-  /** Cross-app download progress event stream. */
-  downloadEvents: ShellDownloadEventsApi;
+  /** Generic entity events emitted by apps. */
+  appEntityEvents: ShellAppEntityEventsApi;
   /** In-process window-bridge primitives for picker / cross-window flows. */
   bridge: ShellBridgeApi;
   /** Runtime knobs (e.g. optional rustBaseUrl escape hatch). */

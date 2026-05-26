@@ -23,6 +23,7 @@
  * `@tokimo/sdk/viewers` subpath to keep the root runtime contract lean.
  */
 
+export * from "./app-entity-events";
 export * from "./appearance";
 export * from "./bridge";
 export * from "./hooks";

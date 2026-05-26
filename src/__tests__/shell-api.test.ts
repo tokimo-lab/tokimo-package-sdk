@@ -51,8 +51,7 @@ describe("makeShellApi", () => {
     windowManager: {} as never,
     ws: {} as never,
     jobEvents: {} as never,
-    personEvents: {} as never,
-    downloadEvents: {} as never,
+    appEntityEvents: {} as never,
     bridge: {} as never,
     config: {} as never,
     subscribeLocale: () => () => {},
@@ -72,8 +71,6 @@ describe("makeShellApi", () => {
     expect(api.appearance).toBe(injections.appearance);
     expect(api.viewer).toBe(injections.viewer);
     expect(api.pickFilePath).toBe(injections.pickFilePath);
-    expect(api.personEvents).toBe(injections.personEvents);
-    expect(api.downloadEvents).toBe(injections.downloadEvents);
     expect(api.subscribeLocale).toBe(injections.subscribeLocale);
   });
 
