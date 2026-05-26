@@ -50,10 +50,27 @@ export interface ShellMediaCenterApi {
   ): () => void;
   /** 可视化用 AnalyserNode（懒创建，需先 play 过一次）。 */
   getAnalyser(): AnalyserNode | null;
+
   /**
-   * Announce that an external owner (e.g. the video PlayerProvider) is the
-   * currently active source. Updates the snapshot for UI display purposes only.
-   * Pass null to clear.
+   * 局部更新当前 active provider 的 snapshot（仅当 snapshot.providerId 匹配时生效）。
+   * 用于 provider 自管理播放元素时推送进度更新（如 video-player）。
    */
-  announceExternalSource(snapshot: MediaCenterSnapshot | null): void;
+  updateProviderSnapshot(
+    providerId: string,
+    patch: Partial<MediaCenterSnapshot>,
+  ): void;
+
+  /**
+   * 激活某 provider 为当前 active source。会暂停前一个 provider（优先调用其 commands.pause，
+   * 否则 audio.pause），但**不触发** audio src 切换。适用于 provider 管理自己播放元素的场景。
+   */
+  activateProviderSource(
+    providerId: string,
+    initialSnapshot: MediaCenterSnapshot,
+  ): void;
+
+  /**
+   * 取消激活指定 provider（若当前 active 才清空 snapshot）。
+   */
+  deactivateProviderSource(providerId: string): void;
 }
