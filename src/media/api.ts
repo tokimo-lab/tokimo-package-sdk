@@ -50,4 +50,10 @@ export interface ShellMediaCenterApi {
   ): () => void;
   /** 可视化用 AnalyserNode（懒创建，需先 play 过一次）。 */
   getAnalyser(): AnalyserNode | null;
+  /**
+   * Announce that an external owner (e.g. the video PlayerProvider) is the
+   * currently active source. Updates the snapshot for UI display purposes only.
+   * Pass null to clear.
+   */
+  announceExternalSource(snapshot: MediaCenterSnapshot | null): void;
 }
