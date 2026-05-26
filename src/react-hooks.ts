@@ -39,15 +39,19 @@ export function useShellLocale(ctx: AppRuntimeCtx): string {
 
 export interface UseMediaCenterResult {
   snapshot: MediaCenterSnapshot | null;
-  api: ShellMediaCenterApi;
+  api: ShellMediaCenterApi | null;
 }
 
 export function useMediaCenter(ctx: AppRuntimeCtx): UseMediaCenterResult {
-  const media = ctx.shell.media;
+  // Defensive: ShellApi.media is typed non-null but may be absent at runtime
+  // (e.g. host version mismatch or stripped shell). Cast through unknown so we
+  // don't widen the published ShellApi type unnecessarily.
+  const media =
+    (ctx.shell.media as unknown as ShellMediaCenterApi | undefined) ?? null;
   const snapshot = useSyncExternalStore(
-    (cb) => media.subscribe(() => cb()),
-    () => media.getSnapshot(),
-    () => media.getSnapshot(),
+    (cb) => (media ? media.subscribe(() => cb()) : () => {}),
+    () => (media ? media.getSnapshot() : null),
+    () => (media ? media.getSnapshot() : null),
   );
   return useMemo(() => ({ snapshot, api: media }), [snapshot, media]);
 }
