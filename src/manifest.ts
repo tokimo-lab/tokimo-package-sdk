@@ -1,7 +1,7 @@
 /**
  * Reference to a settings section implemented in the sidecar bundle.
  *
- * The sidecar calls `ctx.shell.registerAppSection(appId, componentSectionId, Component)`
+ * The sidecar calls `ctx.shell.registerAppSection(componentSectionId, Component)`
  * at mount time. The host's AppSettingsPage resolves the component from the
  * cross-process registry using `appId + ":" + componentSectionId` as the key.
  */

@@ -401,7 +401,6 @@ export interface ShellApi {
    * function on dispose to avoid leaks.
    */
   registerAppSection: (
-    appId: string,
     sectionId: string,
     Component: AnyComponent,
   ) => () => void;
