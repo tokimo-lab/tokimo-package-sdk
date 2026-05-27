@@ -1,4 +1,8 @@
 import type { ComponentType, ReactNode } from "react";
+
+// biome-ignore lint/suspicious/noExplicitAny: component prop types vary per section; callers narrow as needed
+type AnyComponent = ComponentType<any>;
+
 import type { ShellAppearanceApi } from "./appearance";
 import type { ShellMediaCenterApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
@@ -388,6 +392,19 @@ export interface ShellApi {
    * upon subscribe).
    */
   subscribeLocale: (handler: (locale: string) => void) => () => void;
+  /**
+   * Register a React component as a settings section in the host's cross-process
+   * registry. The host's AppSettingsPage resolves the component by the composite
+   * key `<appId>:<sectionId>` when rendering sections declared in the manifest.
+   *
+   * Call this on mount (or mountBackground) and invoke the returned unsubscribe
+   * function on dispose to avoid leaks.
+   */
+  registerAppSection: (
+    appId: string,
+    sectionId: string,
+    Component: AnyComponent,
+  ) => () => void;
   /** Host video player (PlayerProvider). */
   player: {
     play: (

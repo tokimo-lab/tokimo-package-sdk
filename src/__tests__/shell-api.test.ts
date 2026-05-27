@@ -55,6 +55,7 @@ describe("makeShellApi", () => {
     bridge: {} as never,
     config: {} as never,
     subscribeLocale: () => () => {},
+    registerAppSection: () => () => {},
     player: {} as never,
   };
 

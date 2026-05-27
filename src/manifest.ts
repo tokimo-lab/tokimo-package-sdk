@@ -1,3 +1,24 @@
+/**
+ * Reference to a settings section implemented in the sidecar bundle.
+ *
+ * The sidecar calls `ctx.shell.registerAppSection(appId, componentSectionId, Component)`
+ * at mount time. The host's AppSettingsPage resolves the component from the
+ * cross-process registry using `appId + ":" + componentSectionId` as the key.
+ */
+export interface SettingsSectionRef {
+  /** Section storage / routing key (e.g. "download-engine"). */
+  id: string;
+  /** Display label shown in the settings sidebar (i18n key or raw string). */
+  title: string;
+  /** Lucide icon name (resolved by shell). */
+  icon?: string;
+  /**
+   * Key used to look up the registered component from the cross-process registry.
+   * The host stores components under `<appId>:<componentSectionId>`.
+   */
+  componentSectionId: string;
+}
+
 export interface AppManifestLite {
   id: string;
   appName: string;
@@ -14,6 +35,18 @@ export interface AppManifestLite {
   windowType: string;
   defaultSize?: { width: number; height: number };
   category?: "app" | "page" | "system" | "popup";
+  /**
+   * System-level app settings sections (e.g. Download Engine, TMDB).
+   * Shown in the [AppName ▾] → "应用设置…" window.
+   * Each section's component is registered via `ctx.shell.registerAppSection`.
+   */
+  appSettings?: SettingsSectionRef[];
+  /**
+   * Per-user preference sections (e.g. subtitle language, default quality).
+   * Shown in the [AppName ▾] → "偏好设置…" window.
+   * Each section's component is registered via `ctx.shell.registerAppSection`.
+   */
+  settings?: SettingsSectionRef[];
 }
 
 import type { AppRuntimeCtx } from "./runtime";
