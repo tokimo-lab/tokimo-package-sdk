@@ -41,4 +41,16 @@ export interface MenuBarConfig {
   menus?: MenuBarMenu[];
   search?: MenuBarSearchConfig;
   about?: { description?: string; version?: string };
+  /**
+   * Entries injected into the host-rendered [appName] dropdown.
+   * Placed between the standard About item and the Quit item;
+   * the host automatically adds a divider before this group when
+   * About / App Settings / Preferences items precede it.
+   *
+   * Use this for app-scoped actions that conceptually belong to
+   * the application itself rather than the active window — typically
+   * app-level settings dialogs (e.g. download engine, API keys),
+   * sign-out, or "about" sub-pages.
+   */
+  appMenu?: MenuBarMenuEntry[];
 }
