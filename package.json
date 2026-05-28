@@ -16,11 +16,14 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
+    "@tokimo/viewers": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
-  "dependencies": {
-    "@tokimo/viewers": "workspace:*"
+  "peerDependenciesMeta": {
+    "@tokimo/viewers": {
+      "optional": true
+    }
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -32,6 +35,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.9",
     "@tanstack/react-query": "^5.0.0",
+    "@tokimo/viewers": "workspace:*",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.2",
