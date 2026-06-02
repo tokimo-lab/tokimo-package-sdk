@@ -10,8 +10,10 @@
 import {
   useMediaCenter as useMediaCenterCtx,
   useShellAppearance,
+  useShellGeneralSettings as useShellGeneralSettingsCtx,
   useShellLocale,
   useShellMenuBar,
+  useShellPreference as useShellPreferenceCtx,
   useShellToast,
   useShellViewer,
   useShellWindowDrag,
@@ -29,3 +31,10 @@ export const useViewer = () => useShellViewer(useRuntimeCtx());
 export const useNotify = () => useShellApi().notify;
 export const useMenuBar = (config: Parameters<typeof useShellMenuBar>[1]) =>
   useShellMenuBar(useRuntimeCtx(), config);
+
+/** No-arg sugar: per-app DB-backed preference (scope = "app", scopeId = appId). */
+export const usePreference = () => useShellPreferenceCtx(useRuntimeCtx());
+
+/** No-arg sugar: global general settings snapshot (e.g. adult mode). */
+export const useGeneralSettings = () =>
+  useShellGeneralSettingsCtx(useRuntimeCtx());
