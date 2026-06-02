@@ -54,6 +54,8 @@ describe("makeShellApi", () => {
     appEntityEvents: {} as never,
     bridge: {} as never,
     config: {} as never,
+    preferences: {} as never,
+    generalSettings: {} as never,
     subscribeLocale: () => () => {},
     registerAppSection: () => () => {},
     player: {} as never,

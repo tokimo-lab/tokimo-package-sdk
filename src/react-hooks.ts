@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type {
   AppAppearanceSnapshot,
+  AppGeneralSettingsSnapshot,
   AppRuntimeCtx,
   MediaCenterSnapshot,
   MenuBarConfig,
@@ -148,5 +149,62 @@ export function useShellAppearance(ctx: AppRuntimeCtx): AppAppearanceSnapshot {
     (cb) => ap.subscribe(cb),
     () => ap.getSnapshot(),
     () => ap.getSnapshot(),
+  );
+}
+
+// ── Preferences (per-app DB-backed storage) ──────────────────────────────────
+
+const emptyPrefs: Record<string, unknown> = {};
+const noopAsync = async () => {};
+const noopUnsub = () => {};
+
+/**
+ * Read & mutate the current app's DB-backed preferences (scope = "app",
+ * scopeId = appId, automatically scoped by the shell).
+ *
+ * Returns `{ data, patch, put, reset }`. If the shell does not expose the
+ * preferences API (e.g. standalone mode), returns safe defaults.
+ */
+export function useShellPreference<
+  T extends object = Record<string, unknown>,
+>(ctx: AppRuntimeCtx) {
+  const prefs = ctx.shell.preferences;
+
+  const data = useSyncExternalStore(
+    (cb) => prefs?.subscribe(cb) ?? noopUnsub,
+    () => (prefs ? prefs.getSnapshot() : emptyPrefs),
+    () => (prefs ? prefs.getSnapshot() : emptyPrefs),
+  );
+
+  return useMemo(
+    () => ({
+      data: data as T,
+      patch: prefs?.patch ?? noopAsync,
+      put: prefs?.put ?? noopAsync,
+      reset: prefs?.reset ?? noopAsync,
+    }),
+    [data, prefs?.patch, prefs?.put, prefs?.reset],
+  );
+}
+
+// ── General Settings (global system settings) ────────────────────────────────
+
+const defaultGeneralSettings: AppGeneralSettingsSnapshot = {
+  adultModeEnabled: false,
+  adultModeVisible: false,
+};
+
+/**
+ * Subscribe to the host's global general settings snapshot (e.g. adult mode).
+ * Returns safe defaults if the shell doesn't expose the API.
+ */
+export function useShellGeneralSettings(
+  ctx: AppRuntimeCtx,
+): AppGeneralSettingsSnapshot {
+  const gs = ctx.shell.generalSettings;
+  return useSyncExternalStore(
+    (cb) => gs?.subscribe(cb) ?? noopUnsub,
+    () => gs?.getSnapshot() ?? defaultGeneralSettings,
+    () => gs?.getSnapshot() ?? defaultGeneralSettings,
   );
 }

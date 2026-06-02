@@ -32,6 +32,8 @@ export function makeShellApi(
     appEntityEvents: injections.appEntityEvents,
     bridge: injections.bridge,
     config: injections.config,
+    preferences: injections.preferences,
+    generalSettings: injections.generalSettings,
     subscribeLocale: injections.subscribeLocale,
     registerAppSection: injections.registerAppSection,
     player: injections.player,

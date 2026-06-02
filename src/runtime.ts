@@ -4,9 +4,11 @@ import type { ComponentType, ReactNode } from "react";
 type AnyComponent = ComponentType<any>;
 
 import type { ShellAppearanceApi } from "./appearance";
+import type { ShellGeneralSettingsApi } from "./general-settings";
 import type { ShellMediaCenterApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
+import type { ShellPreferencesApi } from "./preferences";
 import type { ReactiveSource } from "./reactive";
 import type { ShellToastApi } from "./toast";
 import type { ShellViewerApi } from "./viewer";
@@ -381,6 +383,19 @@ export interface ShellApi {
   bridge: ShellBridgeApi;
   /** Runtime knobs (e.g. optional rustBaseUrl escape hatch). */
   config: ShellConfig;
+  /**
+   * Per-app preference storage backed by the host's DB (scope = "app",
+   * scopeId = appId, automatically scoped by the shell).
+   *
+   * Reads are reactive (subscribe + getSnapshot); writes are async with
+   * optimistic updates handled by the shell's PreferencesContext.
+   */
+  preferences: ShellPreferencesApi;
+  /**
+   * Global system settings snapshot (e.g. adult mode).
+   * Reactive — subscribe to changes via the snapshot API.
+   */
+  generalSettings: ShellGeneralSettingsApi;
   /**
    * Subscribe to host locale changes. Handler is invoked with the new locale
    * string (e.g. "zh-CN", "en-US") whenever the user switches language in host

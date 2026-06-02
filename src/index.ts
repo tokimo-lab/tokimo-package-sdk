@@ -26,6 +26,7 @@
 export * from "./app-entity-events";
 export * from "./appearance";
 export * from "./bridge";
+export * from "./general-settings";
 export * from "./hooks";
 export * from "./job-events";
 export * from "./lib/avatar";
@@ -35,6 +36,7 @@ export * from "./manifest";
 export * from "./media";
 export * from "./menubar";
 export * from "./notify";
+export * from "./preferences";
 export * from "./react-hooks-runtime";
 export * from "./reactive";
 export * from "./runtime";
