@@ -165,9 +165,9 @@ const noopUnsub = () => {};
  * Returns `{ data, patch, put, reset }`. If the shell does not expose the
  * preferences API (e.g. standalone mode), returns safe defaults.
  */
-export function useShellPreference<
-  T extends object = Record<string, unknown>,
->(ctx: AppRuntimeCtx) {
+export function useShellPreference<T extends object = Record<string, unknown>>(
+  ctx: AppRuntimeCtx,
+) {
   const prefs = ctx.shell.preferences;
 
   const data = useSyncExternalStore(
