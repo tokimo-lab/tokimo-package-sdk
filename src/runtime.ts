@@ -207,6 +207,8 @@ export interface MinimalWindowDTO {
   title: string;
   active: boolean;
   minimized: boolean;
+  /** Window metadata (fileSystemId, favoritesActive, etc.). */
+  metadata?: TaskMetadata;
 }
 
 // ── WindowManager / WS / Jobs / Bridge / Config injections ──────────────────
@@ -244,6 +246,16 @@ export interface WsMessage {
 export interface ShellWsApi {
   /** Subscribe to a topic; returns unsubscribe. */
   subscribe: (type: string, handler: (msg: WsMessage) => void) => () => void;
+  /** Send a WS message and wait for a response. */
+  request: <T = unknown>(
+    type: string,
+    data?: unknown,
+    timeoutMs?: number,
+  ) => Promise<T>;
+  /** Send a WS message without waiting for a response. */
+  send: (type: string, data?: unknown) => void;
+  /** Current connection status. */
+  status: "connecting" | "connected" | "disconnected";
 }
 
 /**
