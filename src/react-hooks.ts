@@ -201,35 +201,32 @@ export function useShellPreference<T extends object = Record<string, unknown>>(
 
   const data = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  return useMemo(
-    () => {
-      if (!prefs) {
-        return {
-          data: data as T,
-          patch: noopAsync,
-          put: noopAsync,
-          reset: noopAsync,
-        };
-      }
-      if (scope !== undefined && scopeId !== undefined) {
-        return {
-          data: data as T,
-          patch: (partial: Record<string, unknown>) =>
-            prefs.patchScoped(scope, scopeId, partial),
-          put: (value: Record<string, unknown>) =>
-            prefs.putScoped(scope, scopeId, value),
-          reset: () => prefs.resetScoped(scope, scopeId),
-        };
-      }
+  return useMemo(() => {
+    if (!prefs) {
       return {
         data: data as T,
-        patch: prefs.patch,
-        put: prefs.put,
-        reset: prefs.reset,
+        patch: noopAsync,
+        put: noopAsync,
+        reset: noopAsync,
       };
-    },
-    [data, prefs, scope, scopeId],
-  );
+    }
+    if (scope !== undefined && scopeId !== undefined) {
+      return {
+        data: data as T,
+        patch: (partial: Record<string, unknown>) =>
+          prefs.patchScoped(scope, scopeId, partial),
+        put: (value: Record<string, unknown>) =>
+          prefs.putScoped(scope, scopeId, value),
+        reset: () => prefs.resetScoped(scope, scopeId),
+      };
+    }
+    return {
+      data: data as T,
+      patch: prefs.patch,
+      put: prefs.put,
+      reset: prefs.reset,
+    };
+  }, [data, prefs, scope, scopeId]);
 }
 
 /**

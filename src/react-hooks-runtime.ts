@@ -60,7 +60,11 @@ export function useSidebarCollapsed(
   componentId: string,
   autoCollapsed: boolean,
 ) {
-  return useShellSidebarCollapsedCtx(useRuntimeCtx(), componentId, autoCollapsed);
+  return useShellSidebarCollapsedCtx(
+    useRuntimeCtx(),
+    componentId,
+    autoCollapsed,
+  );
 }
 
 /** No-arg sugar: global general settings snapshot (e.g. adult mode). */
