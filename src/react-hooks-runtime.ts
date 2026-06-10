@@ -10,10 +10,12 @@
 import {
   useMediaCenter as useMediaCenterCtx,
   useShellAppearance,
+  useShellComponentPreference as useShellComponentPreferenceCtx,
   useShellGeneralSettings as useShellGeneralSettingsCtx,
   useShellLocale,
   useShellMenuBar,
   useShellPreference as useShellPreferenceCtx,
+  useShellSidebarCollapsed as useShellSidebarCollapsedCtx,
   useShellToast,
   useShellViewer,
   useShellWindowDrag,
@@ -32,8 +34,34 @@ export const useNotify = () => useShellApi().notify;
 export const useMenuBar = (config: Parameters<typeof useShellMenuBar>[1]) =>
   useShellMenuBar(useRuntimeCtx(), config);
 
-/** No-arg sugar: per-app DB-backed preference (scope = "app", scopeId = appId). */
-export const usePreference = () => useShellPreferenceCtx(useRuntimeCtx());
+/**
+ * No-arg: per-app DB-backed preference (scope = "app", scopeId = appId). With (scope, scopeId): read/write any scoped preference (incl. cross-app).
+ */
+export function usePreference<T extends object = Record<string, unknown>>(
+  scope?: string,
+  scopeId?: string,
+) {
+  return useShellPreferenceCtx<T>(useRuntimeCtx(), scope, scopeId);
+}
+
+/**
+ * Component-scoped DB-backed preference.
+ */
+export function useComponentPreference<
+  T extends object = Record<string, unknown>,
+>(componentId: string) {
+  return useShellComponentPreferenceCtx<T>(useRuntimeCtx(), componentId);
+}
+
+/**
+ * Sidebar collapsed state backed by a component-scoped preference. Semantics match finder's use-sidebar-collapsed: manual override persists, auto-collapse (narrow container) ORs on top.
+ */
+export function useSidebarCollapsed(
+  componentId: string,
+  autoCollapsed: boolean,
+) {
+  return useShellSidebarCollapsedCtx(useRuntimeCtx(), componentId, autoCollapsed);
+}
 
 /** No-arg sugar: global general settings snapshot (e.g. adult mode). */
 export const useGeneralSettings = () =>

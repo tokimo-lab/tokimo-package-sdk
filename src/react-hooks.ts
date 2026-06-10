@@ -8,7 +8,13 @@
  * These helpers depend on React but not React-DOM; bundlers should externalize
  * "react" so the host React instance is reused (mandatory for hook identity).
  */
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type {
   AppAppearanceSnapshot,
   AppGeneralSettingsSnapshot,
@@ -159,32 +165,112 @@ const noopAsync = async () => {};
 const noopUnsub = () => {};
 
 /**
- * Read & mutate the current app's DB-backed preferences (scope = "app",
- * scopeId = appId, automatically scoped by the shell).
+ * Read & mutate DB-backed preferences. With no `scope`/`scopeId`, this uses
+ * the current app's automatically scoped preferences (scope = "app",
+ * scopeId = appId). With both optional args, it reads/writes that explicit
+ * generic `(scope,scopeId)` entry.
  *
  * Returns `{ data, patch, put, reset }`. If the shell does not expose the
  * preferences API (e.g. standalone mode), returns safe defaults.
  */
 export function useShellPreference<T extends object = Record<string, unknown>>(
   ctx: AppRuntimeCtx,
+  scope?: string,
+  scopeId?: string,
 ) {
   const prefs = ctx.shell.preferences;
 
-  const data = useSyncExternalStore(
-    (cb) => prefs?.subscribe(cb) ?? noopUnsub,
-    () => (prefs ? prefs.getSnapshot() : emptyPrefs),
-    () => (prefs ? prefs.getSnapshot() : emptyPrefs),
+  const subscribe = useCallback(
+    (cb: () => void) => {
+      if (!prefs) return noopUnsub;
+      if (scope !== undefined && scopeId !== undefined) {
+        return prefs.subscribeScoped(scope, scopeId, cb);
+      }
+      return prefs.subscribe(cb);
+    },
+    [prefs, scope, scopeId],
   );
 
+  const getSnapshot = useCallback(() => {
+    if (!prefs) return emptyPrefs;
+    if (scope !== undefined && scopeId !== undefined) {
+      return prefs.readScoped(scope, scopeId);
+    }
+    return prefs.getSnapshot();
+  }, [prefs, scope, scopeId]);
+
+  const data = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
   return useMemo(
-    () => ({
-      data: data as T,
-      patch: prefs?.patch ?? noopAsync,
-      put: prefs?.put ?? noopAsync,
-      reset: prefs?.reset ?? noopAsync,
-    }),
-    [data, prefs?.patch, prefs?.put, prefs?.reset],
+    () => {
+      if (!prefs) {
+        return {
+          data: data as T,
+          patch: noopAsync,
+          put: noopAsync,
+          reset: noopAsync,
+        };
+      }
+      if (scope !== undefined && scopeId !== undefined) {
+        return {
+          data: data as T,
+          patch: (partial: Record<string, unknown>) =>
+            prefs.patchScoped(scope, scopeId, partial),
+          put: (value: Record<string, unknown>) =>
+            prefs.putScoped(scope, scopeId, value),
+          reset: () => prefs.resetScoped(scope, scopeId),
+        };
+      }
+      return {
+        data: data as T,
+        patch: prefs.patch,
+        put: prefs.put,
+        reset: prefs.reset,
+      };
+    },
+    [data, prefs, scope, scopeId],
   );
+}
+
+/**
+ * Read & mutate any (scope,scopeId) DB-backed preference. Can read/write
+ * another app/system preference; safe defaults if shell lacks API.
+ */
+export function useShellScopedPreference<
+  T extends object = Record<string, unknown>,
+>(ctx: AppRuntimeCtx, scope: string, scopeId: string) {
+  return useShellPreference<T>(ctx, scope, scopeId);
+}
+
+/**
+ * Read & mutate component-scoped DB-backed preference (scope = "component",
+ * scopeId = component ID). Returns safe defaults if shell lacks API.
+ */
+export function useShellComponentPreference<
+  T extends object = Record<string, unknown>,
+>(ctx: AppRuntimeCtx, componentId: string) {
+  return useShellScopedPreference<T>(ctx, "component", componentId);
+}
+
+/**
+ * Sidebar collapsed state backed by a component-scoped preference. Semantics match finder's use-sidebar-collapsed: manual override persists, auto-collapse (narrow container) ORs on top.
+ */
+export function useShellSidebarCollapsed(
+  ctx: AppRuntimeCtx,
+  componentId: string,
+  autoCollapsed: boolean,
+) {
+  const { data, patch } = useShellComponentPreference<{
+    sidebar?: { sidebarCollapsed?: boolean };
+  }>(ctx, componentId);
+  const manuallyCollapsed = data.sidebar?.sidebarCollapsed === true;
+  const collapsed = autoCollapsed || manuallyCollapsed;
+
+  const onToggleCollapse = useCallback(() => {
+    patch({ sidebar: { sidebarCollapsed: !collapsed } });
+  }, [collapsed, patch]);
+
+  return { collapsed, onToggleCollapse };
 }
 
 // ── General Settings (global system settings) ────────────────────────────────

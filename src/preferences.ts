@@ -28,4 +28,51 @@ export interface ShellPreferencesApi {
   put: (value: Record<string, unknown>) => Promise<void>;
   /** Delete (restore to default empty object). */
   reset: () => Promise<void>;
+  /**
+   * Read any (scope,scopeId) preference value. Empty object `{}` if none.
+   * Returns a stable reference between changes (safe for useSyncExternalStore).
+   *
+   * Can read ANY scope/scopeId including cross-app/system preferences.
+   * Write ACL enforcement is future work.
+   */
+  readScoped: (scope: string, scopeId: string) => Record<string, unknown>;
+  /**
+   * Subscribe to changes for any (scope,scopeId) preference.
+   * Listener called after patch/put/reset or external shell updates.
+   * Returns an unsubscribe function.
+   *
+   * Can read ANY scope/scopeId including cross-app/system preferences.
+   * Write ACL enforcement is future work.
+   */
+  subscribeScoped: (
+    scope: string,
+    scopeId: string,
+    listener: () => void,
+  ) => () => void;
+  /**
+   * Deep-merge partial update into any (scope,scopeId) preference entry.
+   * Can write ANY scope/scopeId including cross-app/system preferences.
+   * Write ACL enforcement is future work.
+   */
+  patchScoped: (
+    scope: string,
+    scopeId: string,
+    partial: Record<string, unknown>,
+  ) => Promise<void>;
+  /**
+   * Fully overwrite any (scope,scopeId) preference entry.
+   * Can write ANY scope/scopeId including cross-app/system preferences.
+   * Write ACL enforcement is future work.
+   */
+  putScoped: (
+    scope: string,
+    scopeId: string,
+    value: Record<string, unknown>,
+  ) => Promise<void>;
+  /**
+   * Delete any (scope,scopeId) preference entry, restoring it to `{}`.
+   * Can write ANY scope/scopeId including cross-app/system preferences.
+   * Write ACL enforcement is future work.
+   */
+  resetScoped: (scope: string, scopeId: string) => Promise<void>;
 }

@@ -37,7 +37,13 @@ export * from "./media";
 export * from "./menubar";
 export * from "./notify";
 export * from "./preferences";
-export { useShellGeneralSettings, useShellPreference } from "./react-hooks";
+export {
+  useShellComponentPreference,
+  useShellGeneralSettings,
+  useShellPreference,
+  useShellScopedPreference,
+  useShellSidebarCollapsed,
+} from "./react-hooks";
 export * from "./react-hooks-runtime";
 export * from "./reactive";
 export * from "./runtime";
