@@ -68,6 +68,6 @@ export interface PhotoExtension {
   /** Render extra AI fields at the bottom of the right-side info panel. */
   renderInfoPanelExtras?: (photo: PhotoInfo) => ReactNode;
 
-  /** Render AI toolbar buttons. */
-  renderToolbarAiButtons?: (photo: PhotoInfo) => ReactNode;
+  /** Render app-specific toolbar slot content. */
+  renderToolbarSlot?: (photo: PhotoInfo) => ReactNode;
 }
