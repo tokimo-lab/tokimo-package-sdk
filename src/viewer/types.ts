@@ -35,6 +35,8 @@ export interface OpenViewerOptions {
   initialWidth?: number;
   /** Initial window height, overriding the shell viewer default. */
   initialHeight?: number;
+  /** Extra metadata merged into the viewer window metadata. */
+  metadata?: Record<string, unknown>;
 }
 
 export interface OpenFileViewerOptions {
