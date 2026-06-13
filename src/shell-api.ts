@@ -37,6 +37,7 @@ export function makeShellApi(
     subscribeLocale: injections.subscribeLocale,
     registerAppSection: injections.registerAppSection,
     player: injections.player,
+    photo: injections.photo,
   };
 }
 

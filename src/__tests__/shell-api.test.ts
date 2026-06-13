@@ -59,6 +59,11 @@ describe("makeShellApi", () => {
     subscribeLocale: () => () => {},
     registerAppSection: () => () => {},
     player: {} as never,
+    photo: {
+      registerExtension: () => () => {},
+      setViewerPhotos: () => {},
+      clearViewerPhotos: () => {},
+    },
   };
 
   it("returns object with shell API shape", () => {

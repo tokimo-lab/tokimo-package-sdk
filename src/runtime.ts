@@ -334,6 +334,18 @@ export interface AppRuntimeCtx {
   shell: ShellApi;
 }
 
+/** Photo viewer extension interface — registered by external apps for AI overlays, toolbar slots, etc. */
+export interface PhotoExtension {
+  /** Unique extension ID */
+  id: string;
+  /** Human-readable label */
+  label?: string;
+  /** Extension type */
+  type?: string;
+  /** Optional render callback */
+  render?: (...args: unknown[]) => unknown;
+}
+
 export interface ShellApi {
   notify: (input: NotifyInput) => Promise<void>;
   /**
@@ -431,6 +443,18 @@ export interface ShellApi {
     sectionId: string,
     Component: AnyComponent,
   ) => () => void;
+  /** Photo viewer extensions (AI overlays, toolbar slots, etc.). */
+  photo: {
+    registerExtension: (
+      appIdOrExtension: string | PhotoExtension,
+      maybeExtension?: PhotoExtension,
+    ) => () => void;
+    setViewerPhotos: (
+      appId: string,
+      photos: ReadonlyArray<{ id: string; filename: string; [k: string]: unknown }>,
+    ) => void;
+    clearViewerPhotos: (appId: string) => void;
+  };
   /** Host video player (PlayerProvider). */
   player: {
     play: (
