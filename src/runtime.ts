@@ -8,6 +8,7 @@ import type { ShellGeneralSettingsApi } from "./general-settings";
 import type { ShellMediaCenterApi } from "./media";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
+import type { PhotoExtension } from "./photo-extension";
 import type { ShellPreferencesApi } from "./preferences";
 import type { ReactiveSource } from "./reactive";
 import type { ShellToastApi } from "./toast";
@@ -49,6 +50,11 @@ export interface PlayerNextItem {
 export type RegisterPlayerExtension = {
   (appId: string, ext: PlayerExtension): () => void;
   (ext: PlayerExtension): () => void;
+};
+
+export type RegisterPhotoExtension = {
+  (appId: string, ext: PhotoExtension): () => void;
+  (ext: PhotoExtension): () => void;
 };
 
 export interface PlayerExtension {
@@ -104,6 +110,8 @@ export interface ShellPickFilePathParams {
   sourceId?: string;
   /** Protocol prefix shown above the address bar (e.g. "smb://host/share"). */
   protocolPrefix?: string;
+  /** When true, users can select individual files (not just directories). */
+  allowFileSelection?: boolean;
   /** Window title; host provides a sensible default if omitted. */
   title?: string;
   /** Initial window width (default: host decides). */
@@ -138,6 +146,7 @@ export interface StorageBinding {
 export interface ShellPickStorageBindingParams {
   initial?: { sourceId?: string; path?: string };
   title?: string;
+  allowFileSelection?: boolean;
 }
 
 // ── Window state types (shared shape for third-party app windows) ───────────
@@ -478,5 +487,14 @@ export interface ShellApi {
     } | null;
     /** Subscribe to item changes; returns unsubscribe. */
     subscribeItem: (listener: () => void) => () => void;
+  };
+  /** Photo viewer extension registration. */
+  photo: {
+    registerExtension: RegisterPhotoExtension;
+    setViewerPhotos(
+      appId: string,
+      photos: ReadonlyArray<{ id: string; filename: string; [k: string]: unknown }>,
+    ): void;
+    clearViewerPhotos(appId: string): void;
   };
 }

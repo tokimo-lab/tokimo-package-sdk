@@ -44,6 +44,7 @@ describe("makeShellApi", () => {
     windowDrag: {} as never,
     appearance: {} as never,
     viewer: {} as never,
+    photo: {} as never,
     openModalWindow: () => "",
     pickFilePath: async () => null,
     listStorageSources: async () => [],

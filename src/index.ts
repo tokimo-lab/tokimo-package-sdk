@@ -36,6 +36,7 @@ export * from "./manifest";
 export * from "./media";
 export * from "./menubar";
 export * from "./notify";
+export * from "./photo-extension";
 export * from "./preferences";
 export {
   useShellComponentPreference,
