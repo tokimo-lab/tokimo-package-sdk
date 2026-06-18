@@ -447,7 +447,7 @@ export interface ShellApi {
       appId: string,
       photos: ReadonlyArray<{ id: string; filename: string; [k: string]: unknown }>,
     ): void;
-    clearViewerPhotos(appId: string) => void;
+    clearViewerPhotos: (appId: string) => void;
   };
   /** Host video player (PlayerProvider). */
   player: {
