@@ -445,7 +445,11 @@ export interface ShellApi {
     registerExtension: RegisterPhotoExtension;
     setViewerPhotos(
       appId: string,
-      photos: ReadonlyArray<{ id: string; filename: string; [k: string]: unknown }>,
+      photos: ReadonlyArray<{
+        id: string;
+        filename: string;
+        [k: string]: unknown;
+      }>,
     ): void;
     clearViewerPhotos: (appId: string) => void;
   };
