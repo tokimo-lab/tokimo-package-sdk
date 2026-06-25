@@ -34,6 +34,7 @@ export * from "./lib/ua";
 export * from "./lib/url";
 export * from "./manifest";
 export * from "./media";
+export * from "./media-intelligence";
 export * from "./menubar";
 export * from "./notify";
 export * from "./photo-extension";

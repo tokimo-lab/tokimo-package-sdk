@@ -6,6 +6,7 @@ type AnyComponent = ComponentType<any>;
 import type { ShellAppearanceApi } from "./appearance";
 import type { ShellGeneralSettingsApi } from "./general-settings";
 import type { ShellMediaCenterApi } from "./media";
+import type { ShellMediaIntelligenceApi } from "./media-intelligence";
 import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
 import type { PhotoExtension } from "./photo-extension";
@@ -370,6 +371,8 @@ export interface ShellApi {
   ) => HTMLElement | null;
   /** 全局媒体引擎（CentralMusicEngine 的薄包装），跨 app 单例。 */
   media: ShellMediaCenterApi;
+  /** OS-owned image/media analysis capabilities for apps. */
+  mediaIntelligence: ShellMediaIntelligenceApi;
   /** 顶部菜单栏注册（窗口聚焦时显示）。 */
   menubar: ShellMenuBarApi;
   /** Toast / 消息提示。 */

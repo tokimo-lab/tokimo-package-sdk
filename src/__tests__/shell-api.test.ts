@@ -38,6 +38,7 @@ describe("makeShellApi", () => {
   const injections: ShellInjections = {
     getWindowContainer: (_windowId, _options) => null,
     media: {} as never,
+    mediaIntelligence: {} as never,
     menubar: {} as never,
     toast: {} as never,
     windowNav: {} as never,
@@ -70,8 +71,10 @@ describe("makeShellApi", () => {
     const api = makeShellApi("test-app", injections);
     expect(api).toHaveProperty("notify");
     expect(api).toHaveProperty("media");
+    expect(api).toHaveProperty("mediaIntelligence");
     expect(api.getWindowContainer).toBe(injections.getWindowContainer);
     expect(api.media).toBe(injections.media);
+    expect(api.mediaIntelligence).toBe(injections.mediaIntelligence);
     expect(api.menubar).toBe(injections.menubar);
     expect(api.toast).toBe(injections.toast);
     expect(api.windowNav).toBe(injections.windowNav);
