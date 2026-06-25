@@ -38,6 +38,9 @@ export function useAppEntityEvents(opts: {
     if (!enabled) return;
     return appEntityEvents.subscribe({
       enabled: true,
+      appId: appIdRef.current,
+      kind: kindRef.current,
+      scope: scopeRef.current,
       onEvent: (e) => {
         if (e.appId !== appIdRef.current) return;
         if (kindRef.current && e.kind !== kindRef.current) return;
@@ -45,5 +48,5 @@ export function useAppEntityEvents(opts: {
         onEventRef.current(e);
       },
     });
-  }, [appEntityEvents, enabled]);
+  }, [appEntityEvents, enabled, opts.appId, opts.kind, opts.scope]);
 }

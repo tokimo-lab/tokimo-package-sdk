@@ -302,7 +302,17 @@ export interface ShellAppEntityEvent {
   payload: unknown;
 }
 
-export type ShellAppEntityEventsApi = ShellEventChannelApi<ShellAppEntityEvent>;
+export interface ShellAppEntityEventSubscribeParams {
+  onEvent: (event: ShellAppEntityEvent) => void;
+  enabled?: boolean;
+  appId?: string;
+  kind?: string;
+  scope?: string;
+}
+
+export interface ShellAppEntityEventsApi {
+  subscribe: (params: ShellAppEntityEventSubscribeParams) => () => void;
+}
 
 /** Window-bridge primitives. Thin wrapper over host registry. */
 export interface ShellBridgeApi {
