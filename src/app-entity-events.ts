@@ -48,5 +48,5 @@ export function useAppEntityEvents(opts: {
         onEventRef.current(e);
       },
     });
-  }, [appEntityEvents, enabled, opts.appId, opts.kind, opts.scope]);
+  }, [appEntityEvents, enabled]);
 }

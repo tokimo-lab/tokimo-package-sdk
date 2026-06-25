@@ -136,12 +136,16 @@ export interface MediaAnalyzeImageResponse {
 
 export interface ShellMediaIntelligenceApi {
   health(): Promise<MediaHealthResponse>;
-  analyzeImage(input: MediaAnalyzeImageRequest): Promise<MediaAnalyzeImageResponse>;
+  analyzeImage(
+    input: MediaAnalyzeImageRequest,
+  ): Promise<MediaAnalyzeImageResponse>;
   ocrImage(input: MediaOcrImageRequest): Promise<MediaOcrResult>;
   detectFaces(input: MediaFaceDetectRequest): Promise<MediaFaceResult>;
   embedImage(input: MediaEmbedImageRequest): Promise<MediaClipResult>;
   embedText(input: MediaEmbedTextRequest): Promise<MediaClipResult>;
-  classifyVector(input: MediaClassifyVectorRequest): Promise<MediaClipClassifyResult>;
+  classifyVector(
+    input: MediaClassifyVectorRequest,
+  ): Promise<MediaClipClassifyResult>;
   extractGps(input: MediaGpsExtractRequest): Promise<MediaGpsResult | null>;
   reverseGeocode(input: MediaReverseGeocodeRequest): Promise<MediaGpsResult>;
   cancel(input: MediaCancelRequest): Promise<void>;
