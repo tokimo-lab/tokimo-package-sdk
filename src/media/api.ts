@@ -40,6 +40,8 @@ export interface ShellMediaCenterApi {
    * 中相同 id 的位置；找不到则播放新 queue[startIndex]）。
    */
   setQueue(queue: MediaTrack[], startIndex?: number): void;
+  /** 停止当前播放并清空 queue。 */
+  clearQueue(): void;
   setVolume(v: number): void;
 
   /** 即时读快照（null = 无 active）。 */
