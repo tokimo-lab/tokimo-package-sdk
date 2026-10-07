@@ -49,12 +49,20 @@ export interface AppManifestLite {
   settings?: SettingsSectionRef[];
 }
 
-import type { AppRuntimeCtx } from "./runtime";
+import type { AppRuntimeCtx, OpenWindowParams } from "./runtime";
+
+/** App-owned mapping between a shareable route and its content window. */
+export interface StandaloneAppDefinition {
+  createWindow: (route: string) => OpenWindowParams;
+  getRoute: (window: OpenWindowParams) => string | null;
+}
 
 export interface AppDefinition {
   id: string;
   manifest: AppManifestLite;
   translations?: Record<string, Record<string, string>>;
+  /** Opt into the shell's frameless /app/:appId/* entry using app-owned routes. */
+  standalone?: StandaloneAppDefinition;
   /**
    * Mount the app into a shell-provided DOM container.
    * Must return a dispose function that tears down the React root.
