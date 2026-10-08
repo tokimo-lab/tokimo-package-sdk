@@ -53,8 +53,6 @@ import type { AppRuntimeCtx, OpenWindowParams } from "./runtime";
 
 /** App-owned mapping between a shareable route and its content window. */
 export interface StandaloneAppDefinition {
-  /** Fill the viewport and let the app inset its controls using --app-safe-area-*. */
-  safeArea?: "app";
   createWindow: (route: string) => OpenWindowParams;
   getRoute: (window: OpenWindowParams) => string | null;
 }
