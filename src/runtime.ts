@@ -11,7 +11,7 @@ import type { ShellMenuBarApi } from "./menubar";
 import type { NotifyInput } from "./notify";
 import type { PhotoExtension } from "./photo-extension";
 import type { ShellPreferencesApi } from "./preferences";
-import type { ReactiveSource } from "./reactive";
+import type { ReactiveSnapshotApi, ReactiveSource } from "./reactive";
 import type { ShellToastApi } from "./toast";
 import type { ShellViewerApi } from "./viewer";
 import type { ShellWindowDragApi } from "./window-drag";
@@ -338,6 +338,8 @@ export interface ShellConfig {
 }
 
 export interface AppRuntimeCtx {
+  /** Reactive primary-surface layout, scoped to this mount's window. */
+  layout$: ReactiveSnapshotApi<"document" | "viewport">;
   windowId: string;
   appId: string;
   locale: string;

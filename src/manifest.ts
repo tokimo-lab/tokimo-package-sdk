@@ -49,10 +49,14 @@ export interface AppManifestLite {
   settings?: SettingsSectionRef[];
 }
 
+import type { CSSProperties } from "react";
 import type { AppRuntimeCtx, OpenWindowParams } from "./runtime";
 
 /** App-owned mapping between a shareable route and its content window. */
 export interface StandaloneAppDefinition {
+  /** Use document scrolling for the primary surface in mobile standalone mode. */
+  layout?: "document";
+  background?: CSSProperties["backgroundColor"];
   createWindow: (route: string) => OpenWindowParams;
   getRoute: (window: OpenWindowParams) => string | null;
 }

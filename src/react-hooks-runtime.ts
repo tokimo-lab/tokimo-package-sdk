@@ -7,6 +7,7 @@
  * call sites (e.g. imperative escape hatches).
  */
 
+import { useSyncExternalStore } from "react";
 import {
   useMediaCenter as useMediaCenterCtx,
   useShellAppearance,
@@ -22,6 +23,13 @@ import {
   useShellWindowNav,
 } from "./react-hooks";
 import { useRuntimeCtx, useShellApi } from "./runtime-provider";
+
+export function useStandaloneDocumentScroll(): boolean {
+  const { layout$ } = useRuntimeCtx();
+  return (
+    useSyncExternalStore(layout$.subscribe, layout$.getSnapshot) === "document"
+  );
+}
 
 export const useAppearance = () => useShellAppearance(useRuntimeCtx());
 export const useLocale = () => useShellLocale(useRuntimeCtx());
