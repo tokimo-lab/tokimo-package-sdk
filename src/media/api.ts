@@ -23,6 +23,9 @@ export interface ShellMediaCenterApi {
    */
   play(input: PlayInput): Promise<void>;
 
+  /** Re-resolve the current track, retaining playback state; rejects on failure. */
+  reloadCurrentSource(): Promise<void>;
+
   pause(): void;
   resume(): void;
   /** 跳转到当前曲目某位置（毫秒）。 */

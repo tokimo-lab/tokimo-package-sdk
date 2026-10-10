@@ -21,6 +21,8 @@ export interface MediaCenterSnapshot {
   queue: MediaTrack[];
   currentIndex: number;
   isPlaying: boolean;
+  /** Resolving or loading the current audio source. */
+  isLoading?: boolean;
   currentTimeMs: number;
   durationMs: number;
   shuffle: boolean;
@@ -53,15 +55,10 @@ export interface MediaProviderCommands {
 export interface MediaProviderHandle {
   /** host UI 显示用（"Apple Music" / "本地音乐"）。 */
   displayName: string;
-  /**
-   * 解析 track 的可播 URL。必须是一个固定不变、HTMLAudio 能直接 src 的 URL
-   * （http/https 同源或 CORS OK）。鉴权由 provider 后端处理，host 完全无感知。
-   * 同步返回，不再支持 headers。
-   *
-   * 可选——若 provider 管理自己的播放元素（如 video），不需要此方法。
-   * 但 **至少** resolveAudioUrl **或** commands 其一必须存在，否则 registerProvider 会报错。
-   */
-  resolveAudioUrl?(track: MediaTrack): string;
+  /** Resolve a direct URL or an owned audio source. The host disposes owned sources. */
+  resolveAudioUrl?(
+    track: MediaTrack,
+  ): string | MediaAudioSource | Promise<string | MediaAudioSource>;
   /**
    * 可选命令路由。若提供，host 将 pause/seek/next/previous/setVolume 等操作
    * 派发给 provider；否则使用默认 audio 引擎实现。
@@ -85,4 +82,11 @@ export interface PlayInput {
   startIndex?: number;
   /** 起播时间（毫秒）。默认 0。 */
   startTimeMs?: number;
+}
+
+/** A playable source and its optional provider-owned session cleanup. */
+export interface MediaAudioSource {
+  url: string;
+  kind: "direct" | "hls";
+  dispose?(): void | Promise<void>;
 }
