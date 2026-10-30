@@ -59,6 +59,7 @@ describe("makeShellApi", () => {
     generalSettings: {} as never,
     subscribeLocale: () => () => {},
     registerAppSection: () => () => {},
+    apps: {} as never,
     player: {} as never,
     photo: {
       registerExtension: () => () => {},

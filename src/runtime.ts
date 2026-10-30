@@ -356,6 +356,21 @@ export interface AppRuntimeCtx {
   shell: ShellApi;
 }
 
+/**
+ * Availability of another app:
+ * - `running`   — installed, enabled and connected to the bus
+ * - `installed` — installed but disabled or not running right now
+ * - `missing`   — not installed
+ */
+export type AppAvailability = "running" | "installed" | "missing";
+
+export interface ShellAppsApi {
+  /** Current availability of the app with the given id. */
+  status: (appId: string) => Promise<AppAvailability>;
+  /** Open the shell's app center focused on the given app (e.g. to install it). */
+  openAppCenter: (appId?: string) => void;
+}
+
 export interface ShellApi {
   notify: (input: NotifyInput) => Promise<void>;
   /**
@@ -455,6 +470,8 @@ export interface ShellApi {
     sectionId: string,
     Component: AnyComponent,
   ) => () => void;
+  /** Installed-app discovery (for soft dependencies declared in the manifest). */
+  apps: ShellAppsApi;
   /** Photo viewer extension registration. */
   photo: {
     registerExtension: RegisterPhotoExtension;

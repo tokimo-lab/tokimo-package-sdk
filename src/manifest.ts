@@ -49,7 +49,7 @@ export interface AppManifestLite {
   settings?: SettingsSectionRef[];
 }
 
-import type { CSSProperties } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import type { AppRuntimeCtx, OpenWindowParams } from "./runtime";
 
 /** App-owned mapping between a shareable route and its content window. */
@@ -60,6 +60,9 @@ export interface StandaloneAppDefinition {
   createWindow: (route: string) => OpenWindowParams;
   getRoute: (window: OpenWindowParams) => string | null;
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: section components have varying prop signatures
+type AnyComponent = ComponentType<any>;
 
 export interface AppDefinition {
   id: string;
@@ -79,6 +82,14 @@ export interface AppDefinition {
    * persistent state that must survive when no window is open.
    */
   mountBackground?: (container: HTMLElement, ctx: AppRuntimeCtx) => Dispose;
+  /**
+   * Settings section components keyed by `componentSectionId`.
+   *
+   * The shell loads these on demand (e.g. from System Settings → Apps) without
+   * mounting the app window. Components must be self-contained (wrap their own
+   * providers) and read/write settings through the app's own API.
+   */
+  settingsSections?: Record<string, AnyComponent>;
 }
 
 export type Dispose = () => void;

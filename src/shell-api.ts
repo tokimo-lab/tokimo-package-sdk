@@ -37,6 +37,7 @@ export function makeShellApi(
     generalSettings: injections.generalSettings,
     subscribeLocale: injections.subscribeLocale,
     registerAppSection: injections.registerAppSection,
+    apps: injections.apps,
     player: injections.player,
     photo: injections.photo,
   };
